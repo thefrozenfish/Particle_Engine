@@ -4,7 +4,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Last updated:** 2026-10-31
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M0 — code complete on Windows; exit criteria (3-OS CI logs + Rhino host load) pending
+**Active milestone:** M0 — Rhino 8 Win (modern .NET) host-load verified; remaining exit criterion: 3-OS CI logs
 
 ## 1. Milestones
 
@@ -12,7 +12,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 
 | M | Deliverable | Status | Hosts exercised | Report |
 | --- | --- | --- | --- | --- |
-| M0 | Retarget, solution layout, 3-OS CI, legacy tests green | doing | Windows: build + Core tests (net8.0, net48). No CI run, no Rhino load yet. | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
+| M0 | Retarget, solution layout, 3-OS CI, legacy tests green | doing | Windows: build + Core tests (net8.0, net48); Rhino 8 Win modern .NET (.NET 10.0.11) load. CI not yet run. | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
 | M1 | 20-component port-parity scaffold + manifest test | todo | | |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | todo | | |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
@@ -61,7 +61,7 @@ Record per milestone. `OK` / `FAIL` / `-` (not run). Include Rhino build number 
 | Milestone | Host | Rhino build | Runtime | Install | Loads | Runs | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | Rhino 8 Win, .NET Framework | | | | | | |
-| | Rhino 8 Win, modern .NET | | | | | | |
+| M0 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | net7.0 .gha loaded into process (AppDomain shows `ParticleEngine`). No tab / no Libraries entry — expected, 0 components. |
 | | Rhino 8 Mac, Apple Silicon | | | | | | |
 | | Rhino 8 Mac, Intel | | | | | | |
 | | Rhino 7 Win | | | | | | |
@@ -144,9 +144,18 @@ for both `net48` and `net7.0`. The **MSB3277** `System.Net.Http` warning from 0.
 
 **Hosts exercised and what was actually shown:**
 - Windows 11 — **compiles** (whole solution) and **runs** (Core unit tests, both runtimes).
-- Rhino (any host) — **not loaded yet.** The `.gha` has not been loaded into Rhino/Grasshopper.
-  M0 is not complete until the owner runs the acceptance script and CI produces 3-OS logs.
-- macOS — **nothing exercised** (no Mac available here; pending CI + owner).
+- Rhino 8 Windows, **modern .NET (.NET 10.0.11)** — **loads.** The net7.0 `.gha` is pulled into the
+  Rhino process (verified via AppDomain: `ParticleEngine` present). No ribbon tab and no
+  `ComponentServer.Libraries` entry — expected for a zero-component plugin; the first tab appears at M1.
+  (Note: the owner's Rhino now runs .NET 10, not the .NET 8.0.15 recorded in CLAUDE.md; net7.0 assets
+  roll forward onto it.)
+- Rhino 8 Windows, **.NET Framework** — **not exercised.** The owner runs modern .NET and is not
+  switching runtime (to avoid disturbing their setup). The net48 build and net48 Core tests pass, but
+  the net48 Rhino host-load is unverified; revisit on a Framework-mode host if one is available.
+- macOS — **nothing exercised** (no Mac here; pending CI).
+
+**M0 exit status:** manual load on Rhino 8 Win is met for modern .NET (the owner's runtime); the
+remaining exit criterion is 3-OS CI logs, which needs the repo pushed to GitHub.
 
 **Deviations from spec (logged in Section 6 decisions / to go in spec change log at M1):**
 - Fresh build, no legacy test port (owner decision).
