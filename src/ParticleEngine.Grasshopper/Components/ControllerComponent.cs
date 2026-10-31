@@ -1,6 +1,10 @@
+using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Types;
 using ParticleEngine.Core.Manifest;
+using ParticleEngine.Core.Settings;
+using ParticleEngine.Grasshopper.Goo;
 
 namespace ParticleEngine.Grasshopper.Components
 {
@@ -12,6 +16,23 @@ namespace ParticleEngine.Grasshopper.Components
     public sealed class ControllerComponent : ParticleComponentBase, IGH_VariableParameterComponent
     {
         public ControllerComponent() : base(ComponentCatalog.ByKey("Controller")) { }
+
+        protected override void SolveInstance(IGH_DataAccess DA)
+        {
+            // Collect behaviour/force specs from the variable inputs, in input then list order, into the
+            // ordered execution stack. (No behaviours exist until M3, so in M2 this is usually empty.)
+            var stack = new List<BehaviorSpec>();
+            for (int p = 0; p < Params.Input.Count; p++)
+            {
+                var goos = new List<IGH_Goo>();
+                if (!DA.GetDataList(p, goos)) continue;
+                foreach (IGH_Goo goo in goos)
+                {
+                    if (goo?.ScriptVariable() is BehaviorSpec spec) stack.Add(spec);
+                }
+            }
+            DA.SetData(0, new ParticleGoo<BehaviorData>(new BehaviorData(stack)));
+        }
 
         // Inputs may be inserted/removed on the input side only.
         public bool CanInsertParameter(GH_ParameterSide side, int index) => side == GH_ParameterSide.Input;
