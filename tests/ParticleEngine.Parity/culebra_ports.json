@@ -1,0 +1,130 @@
+[
+ {
+  "name": "Bundling", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Creeper_Engine", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Separation", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Init Settings", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Bundling II", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Multi Path Tracking II", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Graphic_Polyline", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Stigmergy", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Trail Data", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Weaving Wandering", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Gradient_Color", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Bundling_Engine", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Repulsion Force", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Box Spawn", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Wandering Mapped", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Visual Settings", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Noise Mapped", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Wandering", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Point Spawn", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Multi Path Tracking II Mapped", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Disco_Color", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Controller", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Flocking Mapped", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Noise", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Flocking", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Multi Path Tracking", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Mesh Crawl II", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Move Settings", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Creeper_Engine_Dual", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Creeper_ZombieEngine", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Attraction Force", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }, 
+ {
+  "name": "Mesh Crawl", 
+  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+ }
+]

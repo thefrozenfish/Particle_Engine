@@ -45,20 +45,26 @@ for proxy in gh.Instances.ComponentServer.ObjectProxies:
     desc = proxy.Desc
     if "culebra" not in (desc.Category or "").lower():
         continue
+    row = {"name": desc.Name, "nick": desc.NickName}
+    # Capture each metadata field independently: a missing attribute (e.g. Exposure
+    # lives on the proxy and varies by build) must never drop the whole component's ports.
+    for key, getter in (
+        ("category", lambda: desc.Category),
+        ("sub",      lambda: desc.SubCategory),
+        ("exposure", lambda: str(proxy.Exposure)),
+        ("guid",     lambda: str(proxy.Guid)),
+    ):
+        try:
+            row[key] = getter()
+        except Exception:
+            pass
     try:
         obj = proxy.CreateInstance()
-        rows.append({
-            "name": desc.Name,
-            "nick": desc.NickName,
-            "category": desc.Category,
-            "sub": desc.SubCategory,
-            "exposure": str(desc.Exposure),
-            "guid": str(proxy.Guid),
-            "inputs":  [port(p) for p in obj.Params.Input],
-            "outputs": [port(p) for p in obj.Params.Output],
-        })
+        row["inputs"]  = [port(p) for p in obj.Params.Input]
+        row["outputs"] = [port(p) for p in obj.Params.Output]
     except Exception as e:
-        rows.append({"name": desc.Name, "error": str(e)})
+        row["error"] = str(e)
+    rows.append(row)
 
 with open(OUT, "w") as f:
     f.write(json.dumps(rows, indent=1))
