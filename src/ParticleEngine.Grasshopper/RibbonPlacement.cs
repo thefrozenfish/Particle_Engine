@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -11,23 +12,23 @@ namespace ParticleEngine.Grasshopper
     /// <summary>
     /// OPT-IN, OFF BY DEFAULT. On hosts with heavy ribbon overflow (many plugins), the Particle
     /// Engine tab can be pushed off the visible strip even though it loaded fine. When the user has
-    /// enabled it, this moves ONLY our tab just after the "Rhino" tab on each session and restores
-    /// the order if anything goes wrong — other plugins' tabs are preserved. Windows only (the ribbon
-    /// is a WinForms control); does nothing on macOS.
+    /// enabled it (a flag file), this moves ONLY our tab just after the "Rhino" tab at session start
+    /// and restores the order if anything goes wrong — other plugins' tabs are preserved. Windows
+    /// only (the ribbon is a WinForms control); does nothing on macOS.
     ///
-    /// The enable flag is a small file at %APPDATA%\ParticleEngine\pin-tab.flag (created/removed by
-    /// scripts/particle-engine-pin-tab.py / ...-unpin-tab.py). A file is used rather than a Grasshopper
-    /// setting because the flag must be readable reliably on every session, after GH settings load.
-    /// This is a placement convenience, not a load fix: the plugin's 20 components work regardless.
+    /// The move is retried on a short timer through the startup window, because Grasshopper populates
+    /// the ribbon and other plugins' tabs incrementally — a single move at CanvasCreated is too early
+    /// or gets overwritten. This is a placement convenience, not a load fix: the 20 components work
+    /// regardless. Toggle with scripts/particle-engine-pin-tab.py / ...-unpin-tab.py.
     /// </summary>
     public sealed class RibbonPlacementPriority : GH_AssemblyPriority
     {
         public override GH_LoadingInstruction PriorityLoad()
         {
-            // Subscribe unconditionally (cheap); decide whether to act once the canvas/ribbon exists
-            // and the flag can be read. Reading the flag here, during early load, is unreliable.
             try
             {
+                RibbonPlacement.Log("PriorityLoad; windows=" +
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     global::Grasshopper.Instances.CanvasCreated += OnCanvasCreated;
             }
@@ -42,14 +43,19 @@ namespace ParticleEngine.Grasshopper
         {
             try
             {
-                if (!RibbonPlacement.IsEnabled()) return;
+                bool enabled = RibbonPlacement.IsEnabled();
+                RibbonPlacement.Log("CanvasCreated; enabled=" + enabled);
+                if (!enabled) return;
+
                 var editor = global::Grasshopper.Instances.DocumentEditor;
-                if (editor == null) return;
-                // Defer until the ribbon has finished its initial layout.
-                editor.BeginInvoke((Action)(() => RibbonPlacement.TryPinOurTab()));
+                if (editor == null) { RibbonPlacement.Log("CanvasCreated; no editor"); return; }
+
+                // Start the retry timer on the editor's UI thread.
+                editor.BeginInvoke((Action)RibbonPlacement.StartPinTimer);
             }
-            catch
+            catch (Exception ex)
             {
+                RibbonPlacement.Log("OnCanvasCreated error: " + ex.Message);
             }
         }
     }
@@ -59,12 +65,21 @@ namespace ParticleEngine.Grasshopper
         private const string Us = "Particle Engine";
         private const string Anchor = "Rhino";
 
+        private const int IntervalMs = 500;
+        private const int MaxAttempts = 20;   // ~10s startup window
+        private const int StableTicksToStop = 3;
+
+        private static Timer? _timer;
+        private static int _attempts;
+        private static int _stable;
+
+        private static string Dir =>
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ParticleEngine");
+
         /// <summary>%APPDATA%\ParticleEngine\pin-tab.flag — present means the user opted in.</summary>
-        internal static string FlagPath =>
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "ParticleEngine",
-                "pin-tab.flag");
+        internal static string FlagPath => Path.Combine(Dir, "pin-tab.flag");
+
+        private static string LogPath => Path.Combine(Dir, "pin-log.txt");
 
         internal static bool IsEnabled()
         {
@@ -72,52 +87,92 @@ namespace ParticleEngine.Grasshopper
             catch { return false; }
         }
 
-        /// <summary>Move our tab just after the Rhino tab, preserving every other tab. No-op on failure.</summary>
-        internal static void TryPinOurTab()
+        internal static void Log(string message)
+        {
+            try
+            {
+                if (!Directory.Exists(Dir)) Directory.CreateDirectory(Dir);
+                File.AppendAllText(LogPath,
+                    DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "  " + message + Environment.NewLine);
+            }
+            catch
+            {
+            }
+        }
+
+        internal static void StartPinTimer()
+        {
+            try
+            {
+                _attempts = 0;
+                _stable = 0;
+                if (_timer == null)
+                {
+                    _timer = new Timer { Interval = IntervalMs };
+                    _timer.Tick += OnTick;
+                }
+                _timer.Start();
+                Log("Pin timer started");
+            }
+            catch (Exception ex)
+            {
+                Log("StartPinTimer error: " + ex.Message);
+            }
+        }
+
+        private static void OnTick(object? sender, EventArgs e)
+        {
+            _attempts++;
+            int result = TryPinOnce(); // 1 = already at target, 0 = moved there, -1 = tab not found / failed
+
+            if (result == 1) _stable++;
+            else _stable = 0;
+
+            if (_stable >= StableTicksToStop || _attempts >= MaxAttempts)
+            {
+                _timer?.Stop();
+                Log("Pin timer stopped after " + _attempts + " attempts (stable=" + _stable + ")");
+            }
+        }
+
+        /// <summary>Move our tab just after the Rhino tab. Returns 1 if already there, 0 if moved, -1 otherwise.</summary>
+        private static int TryPinOnce()
         {
             try
             {
                 var editor = global::Grasshopper.Instances.DocumentEditor;
-                if (editor == null) return;
+                if (editor == null) return -1;
 
                 GH_Ribbon? ribbon = FindRibbon(editor);
-                if (ribbon == null) return;
+                if (ribbon == null) return -1;
 
                 GH_RibbonTab? tab = FindTab(ribbon, Us);
-                if (tab == null) return;
+                if (tab == null) { Log("tick " + _attempts + ": PE tab not in ribbon yet (" + ribbon.Tabs.Count + " tabs)"); return -1; }
 
-                int oldIndex = ribbon.Tabs.IndexOf(tab);
+                int dest = DesiredIndex(ribbon);
+                int current = ribbon.Tabs.IndexOf(tab);
+                if (current == dest) return 1; // already pinned
+
                 int countBefore = ribbon.Tabs.Count;
-
                 ribbon.SuspendLayout();
                 try
                 {
                     ribbon.Tabs.Remove(tab);
-
-                    int dest = 1;
-                    for (int i = 0; i < ribbon.Tabs.Count; i++)
-                    {
-                        if (string.Equals(Convert.ToString(ribbon.Tabs[i].NameFull), Anchor, StringComparison.Ordinal))
-                        {
-                            dest = i + 1;
-                            break;
-                        }
-                    }
+                    dest = DesiredIndex(ribbon); // recompute after removal
                     if (dest > ribbon.Tabs.Count) dest = ribbon.Tabs.Count;
-
                     ribbon.Tabs.Insert(dest, tab);
                     if (ribbon.Tabs.Count != countBefore)
                         throw new InvalidOperationException("ribbon tab count changed");
-
                     ribbon.LayoutRibbon();
                     ribbon.ActiveTabIndex = dest;
                 }
                 catch
                 {
-                    // Put our tab back where it was; never leave the ribbon half-moved.
                     if (!ribbon.Tabs.Contains(tab))
-                        ribbon.Tabs.Insert(Math.Min(Math.Max(oldIndex, 0), ribbon.Tabs.Count), tab);
+                        ribbon.Tabs.Insert(Math.Min(Math.Max(current, 0), ribbon.Tabs.Count), tab);
                     ribbon.LayoutRibbon();
+                    Log("tick " + _attempts + ": move failed, restored");
+                    return -1;
                 }
                 finally
                 {
@@ -125,11 +180,24 @@ namespace ParticleEngine.Grasshopper
                 }
 
                 ribbon.Refresh();
+                Log("tick " + _attempts + ": moved PE to index " + dest + " of " + ribbon.Tabs.Count);
+                return 0;
             }
-            catch
+            catch (Exception ex)
             {
-                // Optional convenience: swallow anything rather than disrupt the host.
+                Log("tick " + _attempts + " error: " + ex.Message);
+                return -1;
             }
+        }
+
+        private static int DesiredIndex(GH_Ribbon ribbon)
+        {
+            for (int i = 0; i < ribbon.Tabs.Count; i++)
+            {
+                if (string.Equals(Convert.ToString(ribbon.Tabs[i].NameFull), Anchor, StringComparison.Ordinal))
+                    return Math.Min(i + 1, ribbon.Tabs.Count);
+            }
+            return Math.Min(1, ribbon.Tabs.Count);
         }
 
         private static GH_Ribbon? FindRibbon(Control control)
