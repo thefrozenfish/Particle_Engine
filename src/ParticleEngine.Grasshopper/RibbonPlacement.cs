@@ -47,11 +47,10 @@ namespace ParticleEngine.Grasshopper
                 RibbonPlacement.Log("CanvasCreated; enabled=" + enabled);
                 if (!enabled) return;
 
-                var editor = global::Grasshopper.Instances.DocumentEditor;
-                if (editor == null) { RibbonPlacement.Log("CanvasCreated; no editor"); return; }
-
-                // Start the retry timer on the editor's UI thread.
-                editor.BeginInvoke((Action)RibbonPlacement.StartPinTimer);
+                // CanvasCreated is raised on the UI thread, but the editor window handle may not exist
+                // yet (so BeginInvoke would throw). A WinForms Timer needs no handle; start it directly
+                // and let its ticks wait for the ribbon to come up.
+                RibbonPlacement.StartPinTimer();
             }
             catch (Exception ex)
             {
