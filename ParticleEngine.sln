@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FB21D60E-1800-4AD0-8B13-DA10993F5F7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleEngine.Core", "src\ParticleEngine.Core\ParticleEngine.Core.csproj", "{6263385B-EB76-4DB1-BAF1-7F83134AE324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleEngine.Grasshopper", "src\ParticleEngine.Grasshopper\ParticleEngine.Grasshopper.csproj", "{551406BB-EA36-4558-BE06-04FB4762ED96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B9DCB9E5-B5B8-4DA3-B829-65428FA3A8A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleEngine.Tests", "tests\ParticleEngine.Tests\ParticleEngine.Tests.csproj", "{65C6D320-713A-4EA6-B662-7BDD2171D716}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleEngine.Parity", "tests\ParticleEngine.Parity\ParticleEngine.Parity.csproj", "{25D93DE7-E8F2-4877-9E1E-A168BBFF373C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bench", "bench", "{15A745A4-C206-464E-B622-DD36EA6DD6AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleEngine.Bench", "bench\ParticleEngine.Bench\ParticleEngine.Bench.csproj", "{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6263385B-EB76-4DB1-BAF1-7F83134AE324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6263385B-EB76-4DB1-BAF1-7F83134AE324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6263385B-EB76-4DB1-BAF1-7F83134AE324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6263385B-EB76-4DB1-BAF1-7F83134AE324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{551406BB-EA36-4558-BE06-04FB4762ED96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{551406BB-EA36-4558-BE06-04FB4762ED96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{551406BB-EA36-4558-BE06-04FB4762ED96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{551406BB-EA36-4558-BE06-04FB4762ED96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65C6D320-713A-4EA6-B662-7BDD2171D716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65C6D320-713A-4EA6-B662-7BDD2171D716}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65C6D320-713A-4EA6-B662-7BDD2171D716}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65C6D320-713A-4EA6-B662-7BDD2171D716}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25D93DE7-E8F2-4877-9E1E-A168BBFF373C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25D93DE7-E8F2-4877-9E1E-A168BBFF373C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25D93DE7-E8F2-4877-9E1E-A168BBFF373C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25D93DE7-E8F2-4877-9E1E-A168BBFF373C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6263385B-EB76-4DB1-BAF1-7F83134AE324} = {FB21D60E-1800-4AD0-8B13-DA10993F5F7A}
+		{551406BB-EA36-4558-BE06-04FB4762ED96} = {FB21D60E-1800-4AD0-8B13-DA10993F5F7A}
+		{65C6D320-713A-4EA6-B662-7BDD2171D716} = {B9DCB9E5-B5B8-4DA3-B829-65428FA3A8A0}
+		{25D93DE7-E8F2-4877-9E1E-A168BBFF373C} = {B9DCB9E5-B5B8-4DA3-B829-65428FA3A8A0}
+		{F2A6555B-4992-4EAE-BD6D-98E1E41AE0C5} = {15A745A4-C206-464E-B622-DD36EA6DD6AD}
+	EndGlobalSection
+EndGlobal

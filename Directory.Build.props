@@ -1,0 +1,18 @@
+<Project>
+
+  <!-- Shared settings for every project in the solution. -->
+  <PropertyGroup>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- The net7.0 assets load on the .NET 8 runtime Rhino 8 uses; silence the EOL warning. -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+
+    <!-- Keep NuGet restore quiet about net48 packages consumed from netstandard/.NET projects. -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+
+</Project>

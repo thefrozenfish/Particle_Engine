@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Parity/conformance fixtures and the port-manifest test (spec 11.1). Placeholder in M0;
+    the manifest test and culebra_ports.json land in M1. Kept in the solution now so the
+    layout matches spec 2.3.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ParticleEngine.Parity</RootNamespace>
+  </PropertyGroup>
+
+</Project>

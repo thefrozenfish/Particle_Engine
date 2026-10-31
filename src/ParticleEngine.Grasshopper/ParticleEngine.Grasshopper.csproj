@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Grasshopper plugin layer. Multi-targets net48 (Rhino 7, and Rhino 8 on Windows in
+    .NET Framework mode) and net7.0 (Rhino 8 modern .NET, incl. macOS). Output extension
+    is .gha. RhinoCommon/Grasshopper are compile-only references (ExcludeAssets=runtime):
+    Rhino supplies them at load time, and excluding runtime assets also removes the
+    MSB3277 System.Net.Http warning seen in 0.3 (spec 2.2).
+
+    M0: no components are registered yet. This assembly only needs to build and load.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net48;net7.0</TargetFrameworks>
+    <AssemblyName>ParticleEngine</AssemblyName>
+    <RootNamespace>ParticleEngine.Grasshopper</RootNamespace>
+    <TargetExt>.gha</TargetExt>
+    <!-- Rhino 8 dynamic-loading niceties; harmless under the 7.x package. -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <!-- Rhino 7 API surface for the .NET Framework build (also the lowest supported API). -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="RhinoCommon" Version="7.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="7.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Rhino 8 API surface for the modern .NET build. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="RhinoCommon" Version="8.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="8.*" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Core ships beside the .gha (ParticleEngine.Core.dll). -->
+    <ProjectReference Include="..\ParticleEngine.Core\ParticleEngine.Core.csproj" />
+  </ItemGroup>
+
+</Project>

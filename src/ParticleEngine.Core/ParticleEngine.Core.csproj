@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Core simulation layer. netstandard2.0 so it loads under .NET Framework 4.8, Mono
+    and modern .NET alike (spec 2.2). NEVER reference RhinoCommon or Grasshopper here:
+    Core works on double[] and small structs only (spec 2.3).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>ParticleEngine.Core</AssemblyName>
+    <RootNamespace>ParticleEngine.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>
