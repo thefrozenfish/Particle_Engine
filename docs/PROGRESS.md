@@ -4,7 +4,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Last updated:** 2026-10-31
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M0 — Rhino 8 Win (modern .NET) host-load verified; remaining exit criterion: 3-OS CI logs
+**Active milestone:** M0 **done** (CI green on 3 OS + Rhino 8 Win modern .NET load). M1 not started.
 
 ## 1. Milestones
 
@@ -12,7 +12,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 
 | M | Deliverable | Status | Hosts exercised | Report |
 | --- | --- | --- | --- | --- |
-| M0 | Retarget, solution layout, 3-OS CI, legacy tests green | doing | Windows: build + Core tests (net8.0, net48); Rhino 8 Win modern .NET (.NET 10.0.11) load. CI not yet run. | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
+| M0 | Retarget, solution layout, 3-OS CI, legacy tests green | done | CI green: Win + macOS Intel + macOS Apple Silicon. Rhino 8 Win modern .NET (.NET 10) load verified. net48 Rhino load deferred (owner on modern .NET). | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
 | M1 | 20-component port-parity scaffold + manifest test | todo | | |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | todo | | |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
@@ -71,7 +71,7 @@ Record per milestone. `OK` / `FAIL` / `-` (not run). Include Rhino build number 
 
 | Date | Commit | Windows | macOS Intel | macOS Apple Silicon | Notes |
 | --- | --- | --- | --- | --- | --- |
-| | | | | | |
+| 2026-10-31 | 45fa7df | pass | pass | pass | ci #1, 2m22s. Core tests net8.0 (3 OS) + net48 (Win); plugin build Win; net7.0 compile-check Mac. |
 
 Benchmark results (median / p95 ms per step; bytes allocated per step):
 
@@ -154,8 +154,11 @@ for both `net48` and `net7.0`. The **MSB3277** `System.Net.Http` warning from 0.
   the net48 Rhino host-load is unverified; revisit on a Framework-mode host if one is available.
 - macOS — **nothing exercised** (no Mac here; pending CI).
 
-**M0 exit status:** manual load on Rhino 8 Win is met for modern .NET (the owner's runtime); the
-remaining exit criterion is 3-OS CI logs, which needs the repo pushed to GitHub.
+**M0 exit status: DONE.** 3-OS CI logs are green (ci #1 on commit 45fa7df: Windows + macOS Intel +
+macOS Apple Silicon). Manual Rhino 8 Win load is met for modern .NET (the owner's runtime). The only
+sub-item not exercised is the .NET Framework in-Rhino load, deferred by owner choice (they run modern
+.NET); the net48 build and net48 Core tests both pass. Next: M1 — but run the Culebra port dump
+(spec 12.1) first so the manifest conformance test can be populated.
 
 **Deviations from spec (logged in Section 6 decisions / to go in spec change log at M1):**
 - Fresh build, no legacy test port (owner decision).
