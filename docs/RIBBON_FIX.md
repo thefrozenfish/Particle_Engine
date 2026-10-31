@@ -76,3 +76,22 @@ Two diagnostic pitfalls:
 2. If the owner wants persistent positioning, design an opt-in solution that preserves other tabs and user preferences; validate after restart and on Mac. Do not report the current script as permanent.
 3. Resume M2 only under the existing project specification/probe workflow. Ribbon visibility does not mean simulation behaviours are implemented.
 4. Review and commit the local repair/handover changes as appropriate; do not commit bin/obj, local backup DLLs or diagnostic logs.
+
+## Persistent placement (opt-in) — added 31 Oct 2026, NOT yet host-validated
+
+An opt-in, off-by-default persistent version of the placement is now built into the plugin:
+
+- `src/ParticleEngine.Grasshopper/RibbonPlacement.cs`: a `GH_AssemblyPriority` that, **only when the
+  user has enabled it**, subscribes to `Instances.CanvasCreated` and moves **only** the Particle
+  Engine tab to just after the Rhino tab each session, restoring the order if anything fails. It is
+  guarded to Windows (the ribbon is a WinForms control) and never blocks plugin loading. The enable
+  flag is a persistent Grasshopper setting (`ParticleEngine.PinTab.Enabled`), so it survives restarts.
+  Not a component — conformance remains exactly 20.
+- `scripts/particle-engine-pin-tab.py` / `particle-engine-unpin-tab.py`: set that setting (and the
+  pin script also moves the tab immediately). Opt-in = run the pin script once; opt-out = run unpin.
+- csproj: a build-only Windows `System.Windows.Forms` reference (same pattern as `System.Drawing`).
+
+**Still needs owner validation on the host** (I cannot run Rhino): that after enabling, the tab is
+pinned on a fresh Rhino restart; that other plugins' tabs and order are undisturbed; and that
+unpinning stops it. macOS is explicitly a no-op (unverified). Until validated on restart, treat this
+as implemented-but-unconfirmed, not a finished feature.

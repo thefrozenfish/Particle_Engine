@@ -22,6 +22,13 @@
       <HintPath>$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)/build/.NETFramework/v4.8/System.Drawing.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- Build-only, Windows-only: the ribbon is a WinForms control. Used solely by the opt-in,
+         off-by-default tab-placement helper (RibbonPlacement), guarded by a Windows runtime check.
+         Rhino supplies WinForms at runtime on Windows; the code path never runs on macOS. -->
+    <Reference Include="System.Windows.Forms">
+      <HintPath>$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)/build/.NETFramework/v4.8/System.Windows.Forms.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
