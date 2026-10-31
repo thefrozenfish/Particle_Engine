@@ -23,14 +23,21 @@ namespace ParticleEngine.Grasshopper
     /// </summary>
     public sealed class RibbonPlacementPriority : GH_AssemblyPriority
     {
+        private static bool _subscribed;
+
         public override GH_LoadingInstruction PriorityLoad()
         {
             try
             {
                 RibbonPlacement.Log("PriorityLoad; windows=" +
                     RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                // Grasshopper may call PriorityLoad more than once; subscribe only once so we never
+                // start duplicate timers.
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !_subscribed)
+                {
                     global::Grasshopper.Instances.CanvasCreated += OnCanvasCreated;
+                    _subscribed = true;
+                }
             }
             catch
             {

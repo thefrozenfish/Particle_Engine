@@ -9,10 +9,10 @@ A Grasshopper plugin that reproduces a chosen subset of Culebra.NET for Rhino 8 
 | `CLAUDE.md` | Standing instructions Claude Code reads automatically |
 | `docs/BUILD_SPEC.md` | The full build specification (20 components, ports, semantics, performance, tests, milestones) |
 | `docs/PROGRESS.md` | Milestone tracker, open verify items, host test log, benchmarks |
-| `docs/KICKOFF_PROMPT.md` | The first message to paste into Claude Code, and follow-up prompts |
+| `docs/RIBBON_FIX.md` | Ribbon overflow repair + opt-in persistent tab placement (host-verified) |
 | `.github/workflows/ci.yml` | CI: Core tests on Windows, macOS Intel, macOS Apple Silicon; plugin build on Windows; manual benchmark run |
-| `scripts/install-dev.ps1` | Windows dev install of the built plugin into Grasshopper's Libraries folder |
-| `legacy/` | Put the 0.3.0 prototype source here (read-only reference) |
+| `scripts/install-ribbon.ps1` | Windows dev install of the built plugin into Grasshopper's Libraries folder (or `Install Particle Engine.cmd`) |
+| `legacy/` | 0.3.0 prototype handover, kept as an overridable reference (not reused; see `legacy/README.md`) |
 
 ## Setup (about 15 minutes)
 
