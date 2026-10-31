@@ -6,7 +6,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M1 **done** (conformance green; all 20 components visible in Rhino 8 Win modern .NET). Mac load not verified. M2 next — needs behavioural probes first.
+**Active milestone:** M2 — implemented to interim rules (Core + GH build/tests green on Windows). Exit pending: behavioural probes P1/P8/P11/P12/P13 and a Timer-driven Rhino run.
 
 ## 1. Milestones
 
@@ -16,7 +16,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | --- | --- | --- | --- | --- |
 | M0 | Retarget, solution layout, 3-OS CI, legacy tests green | done | CI green: Win + macOS Intel + macOS Apple Silicon. Rhino 8 Win modern .NET (.NET 10) load verified. net48 Rhino load deferred (owner on modern .NET). | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
 | M1 | 20-component port-parity scaffold + manifest test | done | Win: build + conformance (vs real Culebra dump); Rhino 8 Win modern .NET shows all 20 components in the 6 subcategories. Mac not verified. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
-| M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | todo | | |
+| M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | doing | Win: Core+GH build + 48 Core tests green. Interim rules (VERIFY P1/P8/P11/P12/P13). Rhino run + probes pending. | [M2 report](#m2--core--grasshopper-interim--2026-10-31) |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
 | M4 | Stigmergy, Multi Path Tracking I/II, Mesh Crawl I/II, children | todo | | |
 | M5 | Creeper_ZombieEngine (background task, cancellation) | todo | | |
@@ -235,6 +235,46 @@ single-step behaviour; those still need the probe runs (spec 12.2) before/with M
 **Next:** owner loads the M1 `.gha` in Rhino to confirm the 20 components appear. Then M2 (Spawn/Init/
 Move/Controller/Trail/Visual + Creeper_Engine straight-line motion), which wants probes P1, P8, P11,
 P12, P13 first.
+
+### M2 — Core + Grasshopper (interim) — 2026-10-31
+
+**Scope.** Spawn, Init, Move, Controller, Trail Data, Visual Settings, and Creeper_Engine with real
+behaviour: straight-line motion from Move Settings (no behaviours yet — those are M3+), boundaries,
+trails, Graphic and Geometry display. Built to the spec's interim rules; probe-dependent specifics are
+tagged `VERIFY(Pn)` and listed in Section 3.
+
+**Files created:**
+- Core: `TrailBuffer.cs` (ring buffers), `CreeperSimulation.cs` (spawn / double-buffered step /
+  boundary / trails).
+- GH: `GhInput.cs` (port coercion + geometry glue), `Components/SpawnComponents.cs`,
+  `Components/SettingsComponents.cs`, `Components/CreeperEngineComponent.cs`; `ControllerComponent`
+  now emits `BehaviorData`; `Components.cs` trimmed to still-scaffold components.
+- Tests: `TrailBufferTests.cs`, `CreeperSimulationTests.cs` (17 new).
+
+**Tests run (OS / runtime / count / result):**
+- Windows 11 / net8.0 / 48 core + 5 conformance / **pass**
+- Windows 11 / net48 / 48 core / **pass**
+- Covers spawn counts, straight-line motion, Velocity-Multiplier, Max-Speed clamp, 2D z-held, bounce
+  (exact reflect + in-box invariant for multi-width steps), respawn, do-nothing, determinism, trails/reset.
+
+**Builds:** `dotnet build ParticleEngine.sln -c Release` → **0 warnings, 0 errors**.
+
+**Hosts exercised:** Windows 11 — **compiles + Core tests pass**. **Rhino — not run yet**: the
+Timer-driven engine, Graphic/Geometry output and drawing are untested in Rhino (owner acceptance
+pending). The GH simulation/engine logic only exercises at Rhino runtime, like the M1 registration bug.
+
+**Review checklist (spec 9.4):** step loop uses `for` over SoA arrays, no LINQ/lambdas, squared compares
+in `VectorMath`, ring buffers (no `RemoveAt(0)`), own PRNG, no statics for state (engine state is
+instance-level, cleared in `RemovedFromDocument`). Draw buffers rebuilt per frame; trail curves built
+only in Geometry mode. Full zero-allocation bench is M7.
+
+**New / open `[VERIFY]` items (interim rules in code):** P1 (scalar speed = random direction; VM scales
+displacement), P8 (respawn = random point in box + re-init velocity + clear trail), P11 (trail point per
+TrailStep; head appended after stored points), P12 (Box Spawn 1 = random, 0 = grid), P13 (frame 0 on
+first solve / Reset; Graphic outputs empty). Mid-run Init/Move changes apply on Reset (spec 4.4).
+
+**Next:** owner runs the M2 acceptance def in Rhino (Timer-driven), and the probes P1/P8/P11/P12/P13
+against Culebra to confirm/adjust the interim rules before M2 is marked done.
 
 
 ## Ribbon and installer repair — final handover, 2026-10-31
