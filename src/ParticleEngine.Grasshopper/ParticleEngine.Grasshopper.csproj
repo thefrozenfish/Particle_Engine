@@ -14,7 +14,9 @@
     <AssemblyName>ParticleEngine</AssemblyName>
     <RootNamespace>ParticleEngine.Grasshopper</RootNamespace>
     <TargetExt>.gha</TargetExt>
-    <!-- Rhino 8 dynamic-loading niceties; harmless under the 7.x package. -->
+    <!-- Required so Rhino 8 (.NET) loads this plugin in its own context and resolves the sibling
+         ParticleEngine.Core.dll. Without it, components that reference Core fail to register. -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>

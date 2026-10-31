@@ -55,6 +55,14 @@ New-Item -ItemType Directory -Path $dest -Force | Out-Null
 
 Copy-Item $gha  $dest
 Copy-Item $core $dest
+
+# .NET (net7.0) dynamic-loading metadata, when present. Rhino 8 uses these to resolve the
+# plugin's own dependencies (ParticleEngine.Core.dll); without them components may not register.
+foreach ($extra in @('ParticleEngine.deps.json', 'ParticleEngine.runtimeconfig.json')) {
+    $src = Join-Path $source $extra
+    if (Test-Path $src) { Copy-Item $src $dest }
+}
+
 Get-ChildItem $dest | Unblock-File
 
 Write-Host "Installed $Target ($Configuration) to $dest"
