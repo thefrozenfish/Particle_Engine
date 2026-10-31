@@ -1,130 +1,2197 @@
 [
  {
-  "name": "Bundling", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "04 | Forces",
+  "exposure": "tertiary",
+  "guid": "067b02f6-3830-4429-82b5-e1576d9f2a18",
+  "nick": "B",
+  "name": "Bundling",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "BB",
+    "default": [],
+    "name": "Bundling Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "T",
+    "default": [
+     "100"
+    ],
+    "name": "Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [
+     "0.5"
+    ],
+    "name": "Ratio",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "RB",
+    "default": [
+     "True"
+    ],
+    "name": "Rebuild",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "PC",
+    "default": [
+     "40"
+    ],
+    "name": "Point Count",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "WC",
+    "default": [
+     "2"
+    ],
+    "name": "Weld Count",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Creeper_Engine", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "05 | Engine",
+  "exposure": "primary",
+  "guid": "08d1cf36-17ab-4576-a4e5-7c0724ab8eb8",
+  "nick": "CE",
+  "name": "Creeper_Engine",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "C",
+    "default": [],
+    "name": "Creepers",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "tree",
+    "nick": "T",
+    "default": [],
+    "name": "Trails",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "CN",
+    "default": [],
+    "name": "Connectivity",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Init Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Move Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "BS",
+    "default": [],
+    "name": "Behavioral Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [],
+    "name": "Reset",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Separation", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "primary",
+  "guid": "12d1e218-2d02-4c6a-8971-20426e077bdb",
+  "nick": "SB",
+  "name": "Separation",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "SB",
+    "default": [],
+    "name": "Separation Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "MS",
+    "default": [
+     "5"
+    ],
+    "name": "Max Separation",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Init Settings", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "02 | Initialize",
+  "exposure": "primary",
+  "guid": "13e9265b-9e8a-4189-ac4a-bca67de0b906",
+  "nick": "IS",
+  "name": "Init Settings",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "IS",
+    "default": [],
+    "name": "Init Settings",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "ST",
+    "default": [],
+    "name": "Spawn Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "D",
+    "default": [],
+    "name": "Dimension",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "B",
+    "default": [],
+    "name": "Boundary",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Bundling II", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "04 | Forces",
+  "exposure": "tertiary",
+  "guid": "1b72f2b8-e91e-4c14-8ca6-e4f9befb0b4b",
+  "nick": "BM",
+  "name": "Bundling II",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "BB",
+    "default": [],
+    "name": "Bundling Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "T",
+    "default": [
+     "100"
+    ],
+    "name": "Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [
+     "0.5"
+    ],
+    "name": "Ratio",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "RB",
+    "default": [
+     "True"
+    ],
+    "name": "Rebuild",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "PC",
+    "default": [
+     "40"
+    ],
+    "name": "Point Count",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "WC",
+    "default": [
+     "2"
+    ],
+    "name": "Weld Count",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [],
+    "name": "Colored Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "EC",
+    "default": [
+     "True"
+    ],
+    "name": "Enable Color",
+    "optional": false,
+    "type": "Boolean"
+   }
+  ]
+ },
  {
-  "name": "Multi Path Tracking II", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "quinary",
+  "guid": "1d4d2db9-e615-4d31-ab15-7718414491d9",
+  "nick": "TT",
+  "name": "Multi Path Tracking II",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TB",
+    "default": [],
+    "name": "Tracking Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "P",
+    "default": [],
+    "name": "Polylines",
+    "optional": false,
+    "type": "Curve"
+   },
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [
+     "500"
+    ],
+    "name": "Polyline Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PD",
+    "default": [
+     "50"
+    ],
+    "name": "Projection Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PR",
+    "default": [
+     "15"
+    ],
+    "name": "Polyline Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "TS",
+    "default": [
+     "True"
+    ],
+    "name": "Trigger Spawn",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MC",
+    "default": [
+     "2"
+    ],
+    "name": "Max Children",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Graphic_Polyline", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "06 | Display",
+  "exposure": "tertiary",
+  "guid": "1e598153-4123-4cc6-9767-93ba89ddc2f8",
+  "nick": "GP",
+  "name": "Graphic_Polyline",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TCD",
+    "default": [],
+    "name": "Trail Color Data",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [],
+    "name": "Particle Texture Path",
+    "optional": true,
+    "type": "Text"
+   },
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [],
+    "name": "Color",
+    "optional": false,
+    "type": "Colour"
+   },
+   {
+    "access": "item",
+    "nick": "D",
+    "default": [
+     "True"
+    ],
+    "name": "Dotted",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "T",
+    "default": [
+     "1"
+    ],
+    "name": "Thickness",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Stigmergy", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "tertiary",
+  "guid": "206a2559-9371-49fc-9434-8fb7e881aafb",
+  "nick": "ST",
+  "name": "Stigmergy",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "SB",
+    "default": [],
+    "name": "Stigmergy Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "VA",
+    "default": [
+     "60"
+    ],
+    "name": "View Angle",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [
+     "1.5"
+    ],
+    "name": "Cohesion Mag",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CR",
+    "default": [
+     "80"
+    ],
+    "name": "Cohesion Range",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SM",
+    "default": [
+     "0"
+    ],
+    "name": "Separation Mag",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SR",
+    "default": [
+     "5"
+    ],
+    "name": "Separation Range",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Trail Data", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "06 | Display",
+  "exposure": "secondary",
+  "guid": "25be7947-f47d-4138-9a6a-c53a82c70113",
+  "nick": "TD",
+  "name": "Trail Data",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TD",
+    "default": [],
+    "name": "Trail Data",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "T",
+    "default": [],
+    "name": "Trail",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "TS",
+    "default": [
+     "0"
+    ],
+    "name": "Trail Step",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "5000"
+    ],
+    "name": "Max Trail Size",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Weaving Wandering", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "secondary",
+  "guid": "26ce7eda-52f3-4bfa-bb98-47a375271c88",
+  "nick": "SW",
+  "name": "Weaving Wandering",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "WB",
+    "default": [],
+    "name": "Wandering Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [
+     "100"
+    ],
+    "name": "Change",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WR",
+    "default": [
+     "60"
+    ],
+    "name": "Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WD",
+    "default": [
+     "60"
+    ],
+    "name": "Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "RT",
+    "default": [
+     "6"
+    ],
+    "name": "Rotation Trigger",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "T",
+    "default": [
+     "0"
+    ],
+    "name": "Type",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Gradient_Color", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "06 | Display",
+  "exposure": "tertiary",
+  "guid": "2f57fc33-cb63-4662-bc04-716b7bea41a8",
+  "nick": "GC",
+  "name": "Gradient_Color",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TCD",
+    "default": [],
+    "name": "Trail Color Data",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [],
+    "name": "Particle Texture Path",
+    "optional": true,
+    "type": "Text"
+   },
+   {
+    "access": "item",
+    "nick": "AC",
+    "default": [
+     "255"
+    ],
+    "name": "Alpha Channel",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "RC",
+    "default": [],
+    "name": "Red Channel",
+    "optional": false,
+    "type": "Domain"
+   },
+   {
+    "access": "item",
+    "nick": "GC",
+    "default": [],
+    "name": "Green Channel",
+    "optional": false,
+    "type": "Domain"
+   },
+   {
+    "access": "item",
+    "nick": "BC",
+    "default": [],
+    "name": "Blue Channel",
+    "optional": false,
+    "type": "Domain"
+   },
+   {
+    "access": "item",
+    "nick": "NT",
+    "default": [
+     "1"
+    ],
+    "name": "Minimum Thickness",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "3"
+    ],
+    "name": "Maximum Thickness",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Bundling_Engine", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "05 | Engine",
+  "exposure": "tertiary",
+  "guid": "356e9e06-8a54-4c45-9a63-39f4a1d1b88d",
+  "nick": "Nickname",
+  "name": "Bundling_Engine",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "G",
+    "default": [],
+    "name": "Geometry",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "C",
+    "default": [],
+    "name": "Curves",
+    "optional": false,
+    "type": "Curve"
+   },
+   {
+    "access": "item",
+    "nick": "BS",
+    "default": [],
+    "name": "Behavioral Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [],
+    "name": "Reset",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Repulsion Force", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "04 | Forces",
+  "exposure": "secondary",
+  "guid": "3b33782c-7e2e-4ca8-9e9c-dc6340b446fa",
+  "nick": "RF",
+  "name": "Repulsion Force",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "AB",
+    "default": [],
+    "name": "Repulsion Force",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "V",
+    "default": [],
+    "name": "Repulsion Threshold Viz",
+    "optional": false,
+    "type": "Circle"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "T",
+    "default": [],
+    "name": "Targets",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "list",
+    "nick": "TH",
+    "default": [],
+    "name": "Thresholds",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "AV",
+    "default": [
+     "1"
+    ],
+    "name": "Repel Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "MA",
+    "default": [
+     "1.5"
+    ],
+    "name": "Max Repel",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Box Spawn", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "01 | Spawn Types",
+  "exposure": "primary",
+  "guid": "4455948f-34bc-4fb8-bf3c-93db8c3baa03",
+  "nick": "BS",
+  "name": "Box Spawn",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "SS",
+    "default": [],
+    "name": "Spawn Settings",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "B",
+    "default": [],
+    "name": "Box",
+    "optional": false,
+    "type": "Box"
+   },
+   {
+    "access": "item",
+    "nick": "S",
+    "default": [
+     "0"
+    ],
+    "name": "Spawn Location",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "CC",
+    "default": [
+     "500"
+    ],
+    "name": "Spawn Count",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Wandering Mapped", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "secondary",
+  "guid": "46515778-a1e3-40b2-a541-4eb9d17396a6",
+  "nick": "WM",
+  "name": "Wandering Mapped",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "WB",
+    "default": [],
+    "name": "Wandering Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [
+     "False"
+    ],
+    "name": "Randomize",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "AH",
+    "default": [
+     "True"
+    ],
+    "name": "Add Heading",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [
+     "100"
+    ],
+    "name": "Change",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WR",
+    "default": [
+     "20"
+    ],
+    "name": "Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WD",
+    "default": [
+     "80"
+    ],
+    "name": "Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [],
+    "name": "Colored Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MC",
+    "default": [
+     "True"
+    ],
+    "name": "Map Change",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MR",
+    "default": [
+     "True"
+    ],
+    "name": "Map Radius",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MD",
+    "default": [
+     "True"
+    ],
+    "name": "Map Distance",
+    "optional": false,
+    "type": "Boolean"
+   }
+  ]
+ },
  {
-  "name": "Visual Settings", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "06 | Display",
+  "exposure": "primary",
+  "guid": "55b57ce1-1eb7-4eca-b107-4952c9cca589",
+  "nick": "VS",
+  "name": "Visual Settings",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "TD",
+    "default": [],
+    "name": "Trail Data",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "CD",
+    "default": [],
+    "name": "Color Data",
+    "optional": true,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "AT",
+    "default": [
+     "False"
+    ],
+    "name": "Apply Texture",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "DM",
+    "default": [],
+    "name": "Display Mode",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Noise Mapped", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "quarternary",
+  "guid": "61e8507c-b396-4c05-b28b-c364236f252b",
+  "nick": "NM",
+  "name": "Noise Mapped",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "SB",
+    "default": [],
+    "name": "Noise Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "S",
+    "default": [
+     "300"
+    ],
+    "name": "Scale",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "ST",
+    "default": [
+     "7"
+    ],
+    "name": "Strength",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [
+     "1"
+    ],
+    "name": "Multiplier",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "V",
+    "default": [
+     "0.5"
+    ],
+    "name": "Velocity",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [],
+    "name": "Colored Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MS",
+    "default": [
+     "True"
+    ],
+    "name": "Map Scale",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MST",
+    "default": [
+     "False"
+    ],
+    "name": "Map Strength",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MM",
+    "default": [
+     "False"
+    ],
+    "name": "Map Multiplier",
+    "optional": false,
+    "type": "Boolean"
+   }
+  ]
+ },
  {
-  "name": "Wandering", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "secondary",
+  "guid": "6da52bc9-dc35-4168-8d99-9bc75fd8b607",
+  "nick": "WA",
+  "name": "Wandering",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "WB",
+    "default": [],
+    "name": "Wandering Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [
+     "True"
+    ],
+    "name": "Randomize",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "AH",
+    "default": [
+     "True"
+    ],
+    "name": "Add Heading",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [
+     "100"
+    ],
+    "name": "Change",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WR",
+    "default": [
+     "20"
+    ],
+    "name": "Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "WD",
+    "default": [
+     "80"
+    ],
+    "name": "Distance",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Point Spawn", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "01 | Spawn Types",
+  "exposure": "primary",
+  "guid": "7173e98d-7626-4a15-b229-994064315f79",
+  "nick": "PS",
+  "name": "Point Spawn",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "SS",
+    "default": [],
+    "name": "Spawn Settings",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "P",
+    "default": [],
+    "name": "Points",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "item",
+    "nick": "B",
+    "default": [],
+    "name": "Box",
+    "optional": false,
+    "type": "Box"
+   }
+  ]
+ },
  {
-  "name": "Multi Path Tracking II Mapped", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "quinary",
+  "guid": "8ccf4d7f-60f6-439b-b4f7-51b2b0b4c4a2",
+  "nick": "TT",
+  "name": "Multi Path Tracking II Mapped",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TB",
+    "default": [],
+    "name": "Tracking Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "P",
+    "default": [],
+    "name": "Polylines",
+    "optional": false,
+    "type": "Curve"
+   },
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [
+     "500"
+    ],
+    "name": "Polyline Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PD",
+    "default": [
+     "50"
+    ],
+    "name": "Projection Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PR",
+    "default": [
+     "15"
+    ],
+    "name": "Polyline Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "TS",
+    "default": [
+     "True"
+    ],
+    "name": "Trigger Spawn",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MC",
+    "default": [
+     "2"
+    ],
+    "name": "Max Children",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [],
+    "name": "Colored Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "False"
+    ],
+    "name": "Map Threshold",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MP",
+    "default": [
+     "True"
+    ],
+    "name": "Map Projection",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MR",
+    "default": [
+     "True"
+    ],
+    "name": "Map Radius",
+    "optional": false,
+    "type": "Boolean"
+   }
+  ]
+ },
  {
-  "name": "Disco_Color", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "06 | Display",
+  "exposure": "tertiary",
+  "guid": "92bb2582-52e7-40c5-8fa8-1a551a4d59b3",
+  "nick": "DC",
+  "name": "Disco_Color",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TCD",
+    "default": [],
+    "name": "Trail Color Data",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [],
+    "name": "Particle Texture Path",
+    "optional": true,
+    "type": "Text"
+   },
+   {
+    "access": "item",
+    "nick": "NT",
+    "default": [
+     "1"
+    ],
+    "name": "Minimum Thickness",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "3"
+    ],
+    "name": "Maximum Thickness",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Controller", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "septenary",
+  "guid": "a096aa9c-1948-4da6-9e07-c01fc21285ad",
+  "nick": "BC",
+  "name": "Controller",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "BDO",
+    "default": [],
+    "name": "Behavior Data Object",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": []
+ },
  {
-  "name": "Flocking Mapped", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "primary",
+  "guid": "a8003d3a-f9d2-4f4d-9e7d-7a3fc2caf83a",
+  "nick": "FM",
+  "name": "Flocking Mapped",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "FB",
+    "default": [],
+    "name": "Flocking Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [
+     "False"
+    ],
+    "name": "Connect",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "VA",
+    "default": [
+     "180"
+    ],
+    "name": "View Angle",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SR",
+    "default": [
+     "70"
+    ],
+    "name": "Search Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "AV",
+    "default": [
+     "0.24"
+    ],
+    "name": "Align Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SV",
+    "default": [
+     "0.09"
+    ],
+    "name": "Separation Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CV",
+    "default": [
+     "0.045"
+    ],
+    "name": "Cohesion Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CM",
+    "default": [],
+    "name": "Colored Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MA",
+    "default": [],
+    "name": "Map Alignment",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MS",
+    "default": [],
+    "name": "Map Separation",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MC",
+    "default": [],
+    "name": "Map Cohesion",
+    "optional": false,
+    "type": "Boolean"
+   }
+  ]
+ },
  {
-  "name": "Noise", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "quarternary",
+  "guid": "c6d25a5a-5379-443b-9021-15da22939ffb",
+  "nick": "N",
+  "name": "Noise",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "SB",
+    "default": [],
+    "name": "Noise Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "S",
+    "default": [
+     "300"
+    ],
+    "name": "Scale",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "ST",
+    "default": [
+     "7"
+    ],
+    "name": "Strength",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [
+     "1"
+    ],
+    "name": "Multiplier",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "V",
+    "default": [
+     "0.5"
+    ],
+    "name": "Velocity",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Flocking", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "primary",
+  "guid": "cc85ce0e-ac5e-4415-ad97-4167e426d0c1",
+  "nick": "FL",
+  "name": "Flocking",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "FB",
+    "default": [],
+    "name": "Flocking Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "C",
+    "default": [
+     "False"
+    ],
+    "name": "Connect",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "VA",
+    "default": [
+     "180"
+    ],
+    "name": "View Angle",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SR",
+    "default": [
+     "70"
+    ],
+    "name": "Search Radius",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "AV",
+    "default": [
+     "0.24"
+    ],
+    "name": "Align Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "SV",
+    "default": [
+     "0.09"
+    ],
+    "name": "Separation Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "CV",
+    "default": [
+     "0.045"
+    ],
+    "name": "Cohesion Value",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Multi Path Tracking", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "quinary",
+  "guid": "ceda61d2-2e40-4bf4-8195-b1f653d47658",
+  "nick": "T",
+  "name": "Multi Path Tracking",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "TB",
+    "default": [],
+    "name": "Tracking Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "P",
+    "default": [],
+    "name": "Polylines",
+    "optional": false,
+    "type": "Curve"
+   },
+   {
+    "access": "item",
+    "nick": "PT",
+    "default": [
+     "500"
+    ],
+    "name": "Polyline Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PD",
+    "default": [
+     "50"
+    ],
+    "name": "Projection Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "PR",
+    "default": [
+     "15"
+    ],
+    "name": "Polyline Radius",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Mesh Crawl II", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "senary",
+  "guid": "d06f6800-4d0c-4aef-b86c-bcbdd526e02b",
+  "nick": "MC",
+  "name": "Mesh Crawl II",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "MCB",
+    "default": [],
+    "name": "Mesh Crawling Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [],
+    "name": "Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "1.5"
+    ],
+    "name": "Mesh Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "MPD",
+    "default": [
+     "2"
+    ],
+    "name": "Mesh Projection Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [
+     "1.5"
+    ],
+    "name": "Multiplier",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "TS",
+    "default": [
+     "True"
+    ],
+    "name": "Trigger Spawn",
+    "optional": false,
+    "type": "Boolean"
+   },
+   {
+    "access": "item",
+    "nick": "MC",
+    "default": [
+     "2"
+    ],
+    "name": "Max Children",
+    "optional": false,
+    "type": "Integer"
+   }
+  ]
+ },
  {
-  "name": "Move Settings", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "02 | Initialize",
+  "exposure": "secondary",
+  "guid": "d22a39f7-599d-4c79-be2a-fc840c6bfac2",
+  "nick": "MS",
+  "name": "Move Settings",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "MS",
+    "default": [],
+    "name": "Move Settings",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "IS",
+    "default": [],
+    "name": "Initial Speed||Vector",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "MS",
+    "default": [],
+    "name": "Max Speed",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "MF",
+    "default": [],
+    "name": "Max Force",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VM",
+    "default": [],
+    "name": "Velocity Multiplier",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Creeper_Engine_Dual", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "05 | Engine",
+  "exposure": "primary",
+  "guid": "dfb426a8-13c4-40c7-be21-5179dd3ff1e5",
+  "nick": "CED",
+  "name": "Creeper_Engine_Dual",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "C",
+    "default": [],
+    "name": "Creepers",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "tree",
+    "nick": "T",
+    "default": [],
+    "name": "Trails",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "CN",
+    "default": [],
+    "name": "Connectivity",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "tree",
+    "nick": "CC",
+    "default": [],
+    "name": "Child Creepers",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "tree",
+    "nick": "CT",
+    "default": [],
+    "name": "Child A Trails",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "tree",
+    "nick": "CBT",
+    "default": [],
+    "name": "Child B Trails",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Init Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Move Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "BS",
+    "default": [],
+    "name": "Behavioral Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Child Move Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "BS",
+    "default": [],
+    "name": "Child Behavioral Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Child Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [],
+    "name": "Reset",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Creeper_ZombieEngine", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "05 | Engine",
+  "exposure": "secondary",
+  "guid": "e2342f89-1643-4b88-ac07-dd7488fc6e45",
+  "nick": "CZE",
+  "name": "Creeper_ZombieEngine",
+  "outputs": [
+   {
+    "access": "list",
+    "nick": "C",
+    "default": [],
+    "name": "Creepers",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "tree",
+    "nick": "T",
+    "default": [],
+    "name": "Trails",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "CN",
+    "default": [],
+    "name": "Connectivity",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Init Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "S",
+    "default": [],
+    "name": "Move Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "BS",
+    "default": [],
+    "name": "Behavioral Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "VS",
+    "default": [],
+    "name": "Visual Settings",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "item",
+    "nick": "I",
+    "default": [],
+    "name": "Iterations",
+    "optional": false,
+    "type": "Integer"
+   },
+   {
+    "access": "item",
+    "nick": "R",
+    "default": [],
+    "name": "Run",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ]
+ },
  {
-  "name": "Attraction Force", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
- }, 
+  "category": "Culebra_GH",
+  "sub": "04 | Forces",
+  "exposure": "primary",
+  "guid": "ead2ded8-0510-46cb-a1f3-891a01d72788",
+  "nick": "AF",
+  "name": "Attraction Force",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "AB",
+    "default": [],
+    "name": "Attraction Force",
+    "optional": false,
+    "type": "Generic Data"
+   },
+   {
+    "access": "list",
+    "nick": "V",
+    "default": [],
+    "name": "Attraction Threshold Viz",
+    "optional": false,
+    "type": "Circle"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "list",
+    "nick": "T",
+    "default": [],
+    "name": "Targets",
+    "optional": false,
+    "type": "Point"
+   },
+   {
+    "access": "list",
+    "nick": "TH",
+    "default": [],
+    "name": "Thresholds",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "AV",
+    "default": [
+     "0.97"
+    ],
+    "name": "Attraction Value",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "MA",
+    "default": [
+     "0.06"
+    ],
+    "name": "Max Attraction",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
+ },
  {
-  "name": "Mesh Crawl", 
-  "error": "'GH_InstanceDescription' object has no attribute 'Exposure'"
+  "category": "Culebra_GH",
+  "sub": "03 | Behaviors",
+  "exposure": "senary",
+  "guid": "ff2f8456-ec6d-4938-88af-ca19a76b4364",
+  "nick": "MC",
+  "name": "Mesh Crawl",
+  "outputs": [
+   {
+    "access": "item",
+    "nick": "MCB",
+    "default": [],
+    "name": "Mesh Crawling Behavior",
+    "optional": false,
+    "type": "Generic Data"
+   }
+  ],
+  "inputs": [
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [],
+    "name": "Mesh",
+    "optional": false,
+    "type": "Mesh"
+   },
+   {
+    "access": "item",
+    "nick": "MT",
+    "default": [
+     "1.5"
+    ],
+    "name": "Mesh Threshold",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "MPD",
+    "default": [
+     "2"
+    ],
+    "name": "Mesh Projection Distance",
+    "optional": false,
+    "type": "Number"
+   },
+   {
+    "access": "item",
+    "nick": "M",
+    "default": [
+     "1.5"
+    ],
+    "name": "Multiplier",
+    "optional": false,
+    "type": "Number"
+   }
+  ]
  }
 ]

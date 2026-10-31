@@ -22,3 +22,7 @@ Thumbs.db
 
 ## Local Claude Code settings
 .claude/settings.local.json
+
+## Culebra port dump — raw copy keeps Culebra's tooltip text; clean-room, never commit.
+## Only the desc-stripped culebra_ports.json is committed.
+tests/ParticleEngine.Parity/culebra_ports.raw.json
