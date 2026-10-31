@@ -1,0 +1,24 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+BenchmarkDotNet.Artifacts/
+bench-results/
+
+## Packaging artefacts
+*.yak
+*.nupkg
+dist/
+*.zip
+
+## OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+## Local Claude Code settings
+.claude/settings.local.json

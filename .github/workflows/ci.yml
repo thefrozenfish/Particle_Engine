@@ -1,0 +1,143 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  core:
+    name: core tests (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, label: windows-x64 }
+          - { os: macos-15-intel, label: macos-intel }
+          - { os: macos-latest,   label: macos-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Detect new solution layout
+        id: layout
+        shell: bash
+        run: |
+          if [ -f ParticleEngine.sln ] && [ -d tests/ParticleEngine.Tests ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "ParticleEngine.sln not present yet (milestone M0 not done); nothing to test."
+          fi
+
+      - name: Core tests (net8.0)
+        if: steps.layout.outputs.found == 'true'
+        shell: bash
+        run: >
+          dotnet test tests/ParticleEngine.Tests -c Release -f net8.0
+          --logger "trx;LogFileName=tests-${{ matrix.label }}-net8.trx"
+          --results-directory TestResults
+
+      - name: Core tests (net48, Windows only)
+        if: steps.layout.outputs.found == 'true' && matrix.os == 'windows-latest'
+        shell: bash
+        run: >
+          dotnet test tests/ParticleEngine.Tests -c Release -f net48
+          --logger "trx;LogFileName=tests-${{ matrix.label }}-net48.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always() && steps.layout.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.label }}
+          path: TestResults
+          if-no-files-found: ignore
+
+  plugin-windows:
+    name: plugin build (windows, net48 + net7.0)
+    runs-on: windows-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build plugin
+        id: build
+        shell: bash
+        run: |
+          if [ -f src/ParticleEngine.Grasshopper/ParticleEngine.Grasshopper.csproj ]; then
+            dotnet build src/ParticleEngine.Grasshopper -c Release
+            echo "built=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "built=false" >> "$GITHUB_OUTPUT"
+            echo "Grasshopper project not present yet; skipping."
+          fi
+      - name: Upload plugin binaries
+        if: steps.build.outputs.built == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-windows
+          path: |
+            src/ParticleEngine.Grasshopper/bin/Release/**/ParticleEngine.gha
+            src/ParticleEngine.Grasshopper/bin/Release/**/ParticleEngine.Core.dll
+
+  plugin-mac-compile:
+    name: plugin build (macOS, net7.0 compile check)
+    runs-on: macos-latest
+    needs: core
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Compile net7.0 target
+        shell: bash
+        run: |
+          if [ -f src/ParticleEngine.Grasshopper/ParticleEngine.Grasshopper.csproj ]; then
+            dotnet build src/ParticleEngine.Grasshopper -c Release -f net7.0
+          else
+            echo "Grasshopper project not present yet; skipping."
+          fi
+
+  bench:
+    name: benchmarks (${{ matrix.label }})
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, label: windows-x64 }
+          - { os: macos-15-intel, label: macos-intel }
+          - { os: macos-latest,   label: macos-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Run benchmarks
+        shell: bash
+        run: |
+          if [ -d bench/ParticleEngine.Bench ]; then
+            mkdir -p bench-results
+            dotnet run -c Release --project bench/ParticleEngine.Bench | tee "bench-results/bench-${{ matrix.label }}.txt"
+          else
+            echo "Bench project not present yet; skipping."
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-${{ matrix.label }}
+          path: bench-results
+          if-no-files-found: ignore
