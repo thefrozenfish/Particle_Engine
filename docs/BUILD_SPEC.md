@@ -854,3 +854,5 @@ Append-only. Each entry: date, section, what changed, why (probe ID or owner dec
 
 | Date | Section | Change | Reason |
 | --- | --- | --- | --- |
+| 2026-10-31 | 12.1 | Port dump is run in **Rhino 8**, not Rhino 7. | Owner runs Culebra on Rhino 8; Rhino 8 is the primary target. |
+| 2026-10-31 | 1 / 2 | Build is a **fresh** 0.4.0, not a port of the 0.3.0 source (which was never supplied). Handover kept as an overridable reference only. | Owner decision, 2026-10-31. |

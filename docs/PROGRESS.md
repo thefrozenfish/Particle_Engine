@@ -28,7 +28,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 - [x] Confirm interpretation calls I-1..I-4 (owner: assume them) — I-1 both Multi Path Tracking versions · I-2 both Mesh Crawl versions · I-3 Rhino 7 best-effort alongside Rhino 8 · I-4 colour ports kept but ignored.
 - [ ] **M0 exit:** run the Rhino 8 Windows acceptance script (both runtimes) from the end of the M0 report and record results in Section 4.
 - [ ] **M0 exit:** push to GitHub so CI produces Core-test logs on Windows + macOS Intel + macOS Apple Silicon; record in Section 5.
-- [ ] Run the port-dump script (spec 12.1) in Rhino 7 with Culebra installed; save the JSON as `tests/ParticleEngine.Parity/culebra_ports.json` (raw) and tell Claude Code. **Do this before M1.**
+- [ ] Run the port-dump script in **Rhino 8** (owner runs Culebra on Rhino 8, not Rhino 7): open `tests/ParticleEngine.Parity/dump_culebra_ports.py` in Rhino 8's ScriptEditor as a standalone script. It writes `tests/ParticleEngine.Parity/culebra_ports.json`. Tell Claude the count. **Do this before M1.** (Deviates from spec 12.1 which assumed Rhino 7 — see change log.)
 - [ ] Run probes P1, P8, P11, P12, P13 before M2; P2–P4 before M3; P5–P7, P10 before M4; P9 before M6 (spec 12.2). Save each result as `tests/ParticleEngine.Parity/probe_PNN.md` (setup, settings, output text).
 - [ ] Test each milestone build in Rhino on Windows (both runtimes) and record results in Section 4.
 - [ ] Test on a Mac (Rhino 8 Apple Silicon; Rhino 8 Intel and Rhino 7 if available) at M1, M2, M5, M8 at minimum.
@@ -90,6 +90,7 @@ Benchmark results (median / p95 ms per step; bytes allocated per step):
 | 2026-10-31 | Assume interpretation calls I-1..I-4 (spec 1.3). | Owner |
 | 2026-10-31 | Add build-only NuGet `Microsoft.NETFramework.ReferenceAssemblies` (PrivateAssets=all) so net48 builds without Visual Studio. No runtime dependency. | Owner-approved |
 | 2026-10-31 | Pin RhinoCommon/Grasshopper to 7.38 (net48) and 8.36 (net7.0) for reproducible CI. | Claude |
+| 2026-10-31 | Owner runs Culebra on **Rhino 8**; port dump will be done there, not Rhino 7. Rhino 8 is already the primary target; Rhino 7 stays best-effort via the net48 build (no code dropped). | Owner |
 
 ## 7. Milestone reports
 
