@@ -1,20 +1,11 @@
-# legacy/ — Particle Engine 0.3.0 prototype (read-only)
+# legacy/ — reference material (read-only)
 
-Put the unzipped contents of `Particle Engine 0.3.0 source.zip` here (the ChatGPT-produced prototype). It should look like:
+Background from the 0.3.0 prototype, kept for reference only.
 
-```
-legacy/
-  Particle Engine/
-    src/ParticleEngine.Core/
-    src/ParticleEngine.Grasshopper/
-    tests/ParticleEngine.Tests/
-    README.md, EXAMPLES.md, VALIDATION.md
-    .github/workflows/core-tests.yml
-```
+- `Particle Engine - Project Handover.md` — history of the 0.3.0 prototype, its
+  architecture, and its known issues (notably the duplicate-defaults defect, spec R3).
 
-Rules for Claude Code:
-
-- **Never edit anything under `legacy/`.** Copy code out into `src/` and `tests/`.
-- Known facts about this code (from the project handover): targets `netstandard2.1`; 19 components; 40 console tests passed on Windows; one reported example-file defect (duplicate saved defaults, spec R3); MSB3277 `System.Net.Http` warning; no Mac testing; live-state scheduling code in the Live Engine component is worth keeping as the optional self-timer.
-- Do not copy the example-builder utility or the example `.gh` files; they carry the duplicate-defaults defect.
-- Treat the handover's claims as unverified until the code and tests confirm them.
+The 0.4.0 rebuild (see `docs/BUILD_SPEC.md`) is a **fresh build**. It does not reuse
+0.3.0 source, and that source is not included here. Treat the handover as an
+*overridable* reference, not a constraint: where it disagrees with the spec or an
+owner decision, the spec and the owner win. Never treat it as ground truth.
