@@ -10,16 +10,16 @@ using Grasshopper.Kernel;
 namespace ParticleEngine.Grasshopper
 {
     /// <summary>
-    /// OPT-IN, OFF BY DEFAULT. On hosts with heavy ribbon overflow (many plugins), the Particle
-    /// Engine tab can be pushed off the visible strip even though it loaded fine. When the user has
-    /// enabled it (a flag file), this moves ONLY our tab just after the "Rhino" tab at session start
-    /// and restores the order if anything goes wrong — other plugins' tabs are preserved. Windows
-    /// only (the ribbon is a WinForms control); does nothing on macOS.
+    /// ON BY DEFAULT (Windows). Many Grasshopper installs have more ribbon tabs than fit across the
+    /// window, so a newly added tab lands off-screen even though it loaded fine. Each session this
+    /// moves ONLY the Particle Engine tab to just after the "Rhino" tab, restoring the order if
+    /// anything goes wrong — other plugins' tabs are preserved. macOS is a no-op (the ribbon is a
+    /// WinForms control).
     ///
-    /// The move is retried on a short timer through the startup window, because Grasshopper populates
-    /// the ribbon and other plugins' tabs incrementally — a single move at CanvasCreated is too early
-    /// or gets overwritten. This is a placement convenience, not a load fix: the 20 components work
-    /// regardless. Toggle with scripts/particle-engine-pin-tab.py / ...-unpin-tab.py.
+    /// Opt out by creating %APPDATA%\ParticleEngine\pin-tab.disabled
+    /// (scripts/particle-engine-unpin-tab.py); re-enable with particle-engine-pin-tab.py. The move is
+    /// retried on a short timer because Grasshopper builds the ribbon incrementally after the canvas
+    /// is created. This is placement only; the plugin's 20 components work regardless.
     /// </summary>
     public sealed class RibbonPlacementPriority : GH_AssemblyPriority
     {
@@ -29,8 +29,6 @@ namespace ParticleEngine.Grasshopper
         {
             try
             {
-                RibbonPlacement.Log("PriorityLoad; windows=" +
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
                 // Grasshopper may call PriorityLoad more than once; subscribe only once so we never
                 // start duplicate timers.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !_subscribed)
@@ -50,12 +48,9 @@ namespace ParticleEngine.Grasshopper
         {
             try
             {
-                bool enabled = RibbonPlacement.IsEnabled();
-                RibbonPlacement.Log("CanvasCreated; enabled=" + enabled);
-                if (!enabled) return;
-
-                // CanvasCreated is raised on the UI thread, but the editor window handle may not exist
-                // yet (so BeginInvoke would throw). A WinForms Timer needs no handle; start it directly
+                if (RibbonPlacement.PinDisabled()) return; // user opted out
+                // CanvasCreated is on the UI thread, but the editor window handle may not exist yet
+                // (so BeginInvoke would throw). A WinForms Timer needs no handle; start it directly
                 // and let its ticks wait for the ribbon to come up.
                 RibbonPlacement.StartPinTimer();
             }
@@ -74,22 +69,24 @@ namespace ParticleEngine.Grasshopper
         private const int IntervalMs = 500;
         private const int MaxAttempts = 20;   // ~10s startup window
         private const int StableTicksToStop = 3;
+        private const long MaxLogBytes = 100_000;
 
         private static Timer? _timer;
         private static int _attempts;
         private static int _stable;
+        private static bool _pinnedThisSession;
 
         private static string Dir =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ParticleEngine");
 
-        /// <summary>%APPDATA%\ParticleEngine\pin-tab.flag — present means the user opted in.</summary>
-        internal static string FlagPath => Path.Combine(Dir, "pin-tab.flag");
+        /// <summary>%APPDATA%\ParticleEngine\pin-tab.disabled — present means the user opted OUT.</summary>
+        internal static string DisableFlagPath => Path.Combine(Dir, "pin-tab.disabled");
 
         private static string LogPath => Path.Combine(Dir, "pin-log.txt");
 
-        internal static bool IsEnabled()
+        internal static bool PinDisabled()
         {
-            try { return File.Exists(FlagPath); }
+            try { return File.Exists(DisableFlagPath); }
             catch { return false; }
         }
 
@@ -98,8 +95,14 @@ namespace ParticleEngine.Grasshopper
             try
             {
                 if (!Directory.Exists(Dir)) Directory.CreateDirectory(Dir);
+                try
+                {
+                    var info = new FileInfo(LogPath);
+                    if (info.Exists && info.Length > MaxLogBytes) File.Delete(LogPath);
+                }
+                catch { }
                 File.AppendAllText(LogPath,
-                    DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "  " + message + Environment.NewLine);
+                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) + "  " + message + Environment.NewLine);
             }
             catch
             {
@@ -112,13 +115,13 @@ namespace ParticleEngine.Grasshopper
             {
                 _attempts = 0;
                 _stable = 0;
+                _pinnedThisSession = false;
                 if (_timer == null)
                 {
                     _timer = new Timer { Interval = IntervalMs };
                     _timer.Tick += OnTick;
                 }
                 _timer.Start();
-                Log("Pin timer started");
             }
             catch (Exception ex)
             {
@@ -129,15 +132,18 @@ namespace ParticleEngine.Grasshopper
         private static void OnTick(object? sender, EventArgs e)
         {
             _attempts++;
-            int result = TryPinOnce(); // 1 = already at target, 0 = moved there, -1 = tab not found / failed
+            int result = TryPinOnce(); // 1 = already at target, 0 = moved there, -1 = not found / failed
 
+            if (result == 0) _pinnedThisSession = true;
             if (result == 1) _stable++;
             else _stable = 0;
 
             if (_stable >= StableTicksToStop || _attempts >= MaxAttempts)
             {
                 _timer?.Stop();
-                Log("Pin timer stopped after " + _attempts + " attempts (stable=" + _stable + ")");
+                if (!_pinnedThisSession && _stable == 0)
+                    Log("gave up after " + _attempts + " attempts (tab not found or move failed)");
+                // Success is logged once in TryPinOnce when the move happens.
             }
         }
 
@@ -153,7 +159,7 @@ namespace ParticleEngine.Grasshopper
                 if (ribbon == null) return -1;
 
                 GH_RibbonTab? tab = FindTab(ribbon, Us);
-                if (tab == null) { Log("tick " + _attempts + ": PE tab not in ribbon yet (" + ribbon.Tabs.Count + " tabs)"); return -1; }
+                if (tab == null) return -1; // ribbon not fully populated yet; the timer retries
 
                 int dest = DesiredIndex(ribbon);
                 int current = ribbon.Tabs.IndexOf(tab);
@@ -177,7 +183,7 @@ namespace ParticleEngine.Grasshopper
                     if (!ribbon.Tabs.Contains(tab))
                         ribbon.Tabs.Insert(Math.Min(Math.Max(current, 0), ribbon.Tabs.Count), tab);
                     ribbon.LayoutRibbon();
-                    Log("tick " + _attempts + ": move failed, restored");
+                    Log("move failed, restored");
                     return -1;
                 }
                 finally
@@ -186,12 +192,12 @@ namespace ParticleEngine.Grasshopper
                 }
 
                 ribbon.Refresh();
-                Log("tick " + _attempts + ": moved PE to index " + dest + " of " + ribbon.Tabs.Count);
+                Log("pinned Particle Engine to index " + dest + " of " + ribbon.Tabs.Count + " (attempt " + _attempts + ")");
                 return 0;
             }
             catch (Exception ex)
             {
-                Log("tick " + _attempts + " error: " + ex.Message);
+                Log("pin error: " + ex.Message);
                 return -1;
             }
         }

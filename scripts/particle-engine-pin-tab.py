@@ -1,12 +1,11 @@
-"""Enable persistent Particle Engine tab placement (opt-in) and apply it now.
+"""Re-enable automatic Particle Engine tab placement (undo an opt-out) and apply it now.
 
-Run in Rhino with  _-RunPythonScript  while Grasshopper is open:
+Placement is ON BY DEFAULT, so you only need this if you previously opted out, or want to move the
+tab immediately without restarting. Run in Rhino with  _-RunPythonScript  while Grasshopper is open:
   _-RunPythonScript "D:\\CLAUDE\\Particle Engine\\scripts\\particle-engine-pin-tab.py"
 
-Creates a flag file at %APPDATA%\\ParticleEngine\\pin-tab.flag. The plugin reads that flag on every
-future session and, while it exists, moves ONLY the Particle Engine tab just after the Rhino tab
-(restoring order if anything fails). This script also moves it immediately. Windows only.
-Disable again with particle-engine-unpin-tab.py.
+Removes the opt-out flag %APPDATA%\\ParticleEngine\\pin-tab.disabled (if present) and moves ONLY the
+Particle Engine tab to just after the Rhino tab now. Windows only.
 """
 import clr
 import json
@@ -16,7 +15,7 @@ clr.AddReference('Grasshopper')
 import Grasshopper
 import Rhino
 
-FLAG = os.path.join(os.environ['APPDATA'], 'ParticleEngine', 'pin-tab.flag')
+DISABLE = os.path.join(os.environ['APPDATA'], 'ParticleEngine', 'pin-tab.disabled')
 
 
 def find_ribbon(control):
@@ -59,15 +58,10 @@ if not os.path.isdir(report_dir):
     os.makedirs(report_dir)
 path = os.path.join(report_dir, 'particle-engine-pin-tab.json')
 try:
-    # Write the persistent opt-in flag first, so placement survives restart even if the
-    # immediate move below fails for any reason.
-    flag_dir = os.path.dirname(FLAG)
-    if not os.path.isdir(flag_dir):
-        os.makedirs(flag_dir)
-    with open(FLAG, 'w') as f:
-        f.write('enabled')
-    report['flag'] = FLAG
-    report['flag_exists'] = os.path.isfile(FLAG)
+    # Remove any opt-out flag so automatic placement resumes on future sessions.
+    if os.path.isfile(DISABLE):
+        os.remove(DISABLE)
+    report['disable_flag_removed'] = not os.path.isfile(DISABLE)
 
     editor = Grasshopper.Instances.DocumentEditor
     if editor is None:
@@ -86,7 +80,7 @@ try:
     report['moved_to_index'] = dest
     report['tab_count'] = ribbon.Tabs.Count
     Rhino.RhinoApp.WriteLine('Particle Engine tab pinned after Rhino (tab ' + str(dest + 1) + ').')
-    Rhino.RhinoApp.WriteLine('Persistent placement ENABLED (flag: ' + FLAG + '). It reapplies every session until you unpin.')
+    Rhino.RhinoApp.WriteLine('Automatic placement is ENABLED (default); it reapplies every session.')
 except Exception:
     report['error'] = traceback.format_exc()
     Rhino.RhinoApp.WriteLine(report['error'])

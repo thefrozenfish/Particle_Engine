@@ -77,26 +77,30 @@ Two diagnostic pitfalls:
 3. Resume M2 only under the existing project specification/probe workflow. Ribbon visibility does not mean simulation behaviours are implemented.
 4. Review and commit the local repair/handover changes as appropriate; do not commit bin/obj, local backup DLLs or diagnostic logs.
 
-## Persistent placement (opt-in) — added 31 Oct 2026, host-validated on restart (Windows)
+## Automatic tab placement (ON BY DEFAULT, Windows) — added 31 Oct 2026, host-validated
 
-An opt-in, off-by-default persistent version of the placement is now built into the plugin:
+Placement is now built into the plugin and **on by default** (owner's choice): no flag or script is
+needed. macOS is a no-op (the ribbon is a WinForms control).
 
-- `src/ParticleEngine.Grasshopper/RibbonPlacement.cs`: a `GH_AssemblyPriority` that, **only when the
-  user has enabled it**, subscribes to `Instances.CanvasCreated` and moves **only** the Particle
-  Engine tab to just after the Rhino tab each session, restoring the order if anything fails. It is
-  guarded to Windows (the ribbon is a WinForms control) and never blocks plugin loading. The enable
-  flag is a persistent Grasshopper setting (`ParticleEngine.PinTab.Enabled`), so it survives restarts.
-  Not a component — conformance remains exactly 20.
-- `scripts/particle-engine-pin-tab.py` / `particle-engine-unpin-tab.py`: set that setting (and the
-  pin script also moves the tab immediately). Opt-in = run the pin script once; opt-out = run unpin.
-- csproj: a build-only Windows `System.Windows.Forms` reference (same pattern as `System.Drawing`).
+- `src/ParticleEngine.Grasshopper/RibbonPlacement.cs`: a `GH_AssemblyPriority` subscribes once to
+  `Instances.CanvasCreated` and, each session, moves **only** the Particle Engine tab to just after
+  the Rhino tab, restoring the order if anything fails — other plugins' tabs are preserved. The move
+  is **retried on a 500ms timer** (max ~10s) because Grasshopper builds the ribbon incrementally after
+  the canvas is created (the host's ribbon had 0 tabs for ~5s, then 64). Windows-guarded; never blocks
+  loading. Not a component — conformance remains exactly 20. A small capped log is written to
+  `%APPDATA%\ParticleEngine\pin-log.txt`.
+- **Opt out:** `scripts/particle-engine-unpin-tab.py` creates `%APPDATA%\ParticleEngine\pin-tab.disabled`;
+  while present the plugin stops repositioning. **Re-enable / move now:** `particle-engine-pin-tab.py`
+  removes that flag and moves the tab immediately.
+- csproj: build-only Windows `System.Drawing` and `System.Windows.Forms` references (Rhino supplies
+  them at runtime).
 
-**Validated (Windows Rhino 8 / .NET 10, 2026-10-31):** after enabling via the pin script, the tab
-is automatically pinned just after Rhino on a fresh Rhino restart; owner confirmed "that worked".
-Getting there needed: a persistent file flag (early `GH_AssemblyPriority` setting reads were
-unreliable), and a retry timer started directly on the UI thread — `BeginInvoke` at `CanvasCreated`
-threw because the editor window handle doesn't exist yet. A per-session log is written to
-`%APPDATA%\ParticleEngine\pin-log.txt`.
+**Validated (Windows Rhino 8 / .NET 10, 2026-10-31):** the tab auto-pins just after Rhino on a fresh
+Rhino restart; owner confirmed, and the log showed the retry catching the ribbon once it was
+populated (tick 12: "moved PE to index 11 of 64"). Two bugs fixed en route: an early
+`GH_AssemblyPriority` setting read was unreliable (switched to a file check at canvas time), and
+`BeginInvoke` at `CanvasCreated` threw because the editor window handle didn't exist yet (the timer is
+now started directly on the UI thread).
 
-**Still unverified:** that unpinning + restart returns the tab cleanly; that other plugins' tabs and
-order are fully undisturbed over repeated sessions; and macOS (an explicit no-op there).
+**Still unverified:** opt-out + restart returning the tab cleanly; that other plugins' tabs and order
+stay undisturbed over many sessions; and macOS (an explicit no-op there).
