@@ -77,7 +77,7 @@ Two diagnostic pitfalls:
 3. Resume M2 only under the existing project specification/probe workflow. Ribbon visibility does not mean simulation behaviours are implemented.
 4. Review and commit the local repair/handover changes as appropriate; do not commit bin/obj, local backup DLLs or diagnostic logs.
 
-## Persistent placement (opt-in) — added 31 Oct 2026, NOT yet host-validated
+## Persistent placement (opt-in) — added 31 Oct 2026, host-validated on restart (Windows)
 
 An opt-in, off-by-default persistent version of the placement is now built into the plugin:
 
@@ -91,7 +91,12 @@ An opt-in, off-by-default persistent version of the placement is now built into 
   pin script also moves the tab immediately). Opt-in = run the pin script once; opt-out = run unpin.
 - csproj: a build-only Windows `System.Windows.Forms` reference (same pattern as `System.Drawing`).
 
-**Still needs owner validation on the host** (I cannot run Rhino): that after enabling, the tab is
-pinned on a fresh Rhino restart; that other plugins' tabs and order are undisturbed; and that
-unpinning stops it. macOS is explicitly a no-op (unverified). Until validated on restart, treat this
-as implemented-but-unconfirmed, not a finished feature.
+**Validated (Windows Rhino 8 / .NET 10, 2026-10-31):** after enabling via the pin script, the tab
+is automatically pinned just after Rhino on a fresh Rhino restart; owner confirmed "that worked".
+Getting there needed: a persistent file flag (early `GH_AssemblyPriority` setting reads were
+unreliable), and a retry timer started directly on the UI thread — `BeginInvoke` at `CanvasCreated`
+threw because the editor window handle doesn't exist yet. A per-session log is written to
+`%APPDATA%\ParticleEngine\pin-log.txt`.
+
+**Still unverified:** that unpinning + restart returns the tab cleanly; that other plugins' tabs and
+order are fully undisturbed over repeated sessions; and macOS (an explicit no-op there).
