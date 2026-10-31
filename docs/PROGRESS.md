@@ -4,7 +4,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Last updated:** 2026-10-31
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M1 — code-complete (conformance test green; .gha builds on both targets). Remaining exit item: components visible in Rhino on Win + Mac (owner).
+**Active milestone:** M1 **done** (conformance green; all 20 components visible in Rhino 8 Win modern .NET). Mac load not verified. M2 next — needs behavioural probes first.
 
 ## 1. Milestones
 
@@ -13,7 +13,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M | Deliverable | Status | Hosts exercised | Report |
 | --- | --- | --- | --- | --- |
 | M0 | Retarget, solution layout, 3-OS CI, legacy tests green | done | CI green: Win + macOS Intel + macOS Apple Silicon. Rhino 8 Win modern .NET (.NET 10) load verified. net48 Rhino load deferred (owner on modern .NET). | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
-| M1 | 20-component port-parity scaffold + manifest test | doing | Windows: build + conformance test (vs real Culebra dump). Not yet shown in Rhino. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
+| M1 | 20-component port-parity scaffold + manifest test | done | Win: build + conformance (vs real Culebra dump); Rhino 8 Win modern .NET shows all 20 components in the 6 subcategories. Mac not verified. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | todo | | |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
 | M4 | Stigmergy, Multi Path Tracking I/II, Mesh Crawl I/II, children | todo | | |
@@ -29,7 +29,8 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 - [ ] **M0 exit:** run the Rhino 8 Windows acceptance script (both runtimes) from the end of the M0 report and record results in Section 4.
 - [ ] **M0 exit:** push to GitHub so CI produces Core-test logs on Windows + macOS Intel + macOS Apple Silicon; record in Section 5.
 - [x] Run the port-dump script in **Rhino 8**: done 2026-10-31, 32 components captured. Sanitized fixture committed as `tests/ParticleEngine.Parity/culebra_ports.json`; conformance test built against it.
-- [ ] **M1 exit:** load the M1 `.gha` in Rhino 8 (Win) and confirm the six subcategories show all 20 components; ideally check on a Mac too. Dev build staged via `install-dev.ps1`.
+- [x] **M1 exit:** Rhino 8 Win (modern .NET) shows all 20 components in the six subcategories (2026-10-31). Mac not yet checked.
+- [ ] Run the M2 probes **P1, P8, P11, P12, P13** (spec 12.2) in Rhino 8 with Culebra, to get single-step behaviour ground truth before M2 is finalized.
 - [ ] Run probes P1, P8, P11, P12, P13 before M2; P2–P4 before M3; P5–P7, P10 before M4; P9 before M6 (spec 12.2). Save each result as `tests/ParticleEngine.Parity/probe_PNN.md` (setup, settings, output text).
 - [ ] Test each milestone build in Rhino on Windows (both runtimes) and record results in Section 4.
 - [ ] Test on a Mac (Rhino 8 Apple Silicon; Rhino 8 Intel and Rhino 7 if available) at M1, M2, M5, M8 at minimum.
@@ -63,6 +64,7 @@ Record per milestone. `OK` / `FAIL` / `-` (not run). Include Rhino build number 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | Rhino 8 Win, .NET Framework | | | | | | |
 | M0 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | net7.0 .gha loaded into process (AppDomain shows `ParticleEngine`). No tab / no Libraries entry — expected, 0 components. |
+| M1 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | All 20 components visible in the six subcategories. Needed two fixes: `EnableDynamicLoading` (resolve Core.dll) + ctor NRE fix (Spec resolved from runtime type). |
 | | Rhino 8 Mac, Apple Silicon | | | | | | |
 | | Rhino 8 Mac, Intel | | | | | | |
 | | Rhino 7 Win | | | | | | |
@@ -204,8 +206,16 @@ captured; our 20 in scope). Ground truth beat the public-docs spec in several pl
 **Builds:** `dotnet build ParticleEngine.sln -c Release` → **0 warnings, 0 errors**; `.gha` builds for
 net48 and net7.0.
 
-**Hosts exercised:** Windows 11 — **compiles + tests pass**. Rhino — **not loaded yet** for M1; the
-"components visible in the six subcategories" exit check is pending (owner, Win + ideally Mac).
+**Hosts exercised:** Windows 11 — **compiles + tests pass**. **Rhino 8 Win, modern .NET (.NET 10):
+all 20 components load and appear in the six subcategories** (verified by the owner). Two Rhino-load
+fixes were needed after the first attempt showed 0 components:
+1. `EnableDynamicLoading=true` + shipping the net7.0 `deps.json`/`runtimeconfig.json` so Rhino resolves
+   the sibling `ParticleEngine.Core.dll` (M0 loaded without this only because it never touched Core).
+2. A `NullReferenceException` in component construction: `GH_Component`'s base ctor registers ports
+   (via PostConstructor) before a derived field is set, so `Spec` was null. Fixed by resolving the
+   spec from the runtime type name. **Lesson:** GH component instantiation isn't covered by the tests
+   (they read the catalog, never instantiate components), so this class of bug only shows at Rhino
+   load — the M1 host check is the gate for it. Mac load still unverified (no Mac).
 
 **Deviations from spec (logged in BUILD_SPEC §17):** engines take a Move Settings input directly
 (overrides §6.2); Mesh Crawl has a 4th `Multiplier` port; many real defaults; Init Settings spawn
