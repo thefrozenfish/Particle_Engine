@@ -81,9 +81,9 @@ jobs:
             src/ParticleEngine.Grasshopper/bin/Release/**/ParticleEngine.gha
             src/ParticleEngine.Grasshopper/bin/Release/**/ParticleEngine.Core.dll
 
-  # macOS only runs modern .NET, so compile-check the net7.0 target there.
+  # Compile-check the (single netstandard2.0) plugin on macOS too.
   plugin-mac-compile:
-    name: plugin build (macOS, net7.0 compile check)
+    name: plugin build (macOS compile check)
     runs-on: macos-latest
     needs: core
     steps:
@@ -91,9 +91,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Compile net7.0 target
+      - name: Compile plugin
         shell: bash
-        run: dotnet build src/ParticleEngine.Grasshopper -c Release -f net7.0
+        run: dotnet build src/ParticleEngine.Grasshopper -c Release
 
   # Benchmarks are opt-in (manual dispatch); they print step times and allocations.
   bench:

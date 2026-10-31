@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using Grasshopper.Kernel;
 
 namespace ParticleEngine.Grasshopper
@@ -13,7 +12,7 @@ namespace ParticleEngine.Grasshopper
     {
         public override string Name => "Particle Engine";
 
-        public override Bitmap? Icon => null; // Icons are added in the final milestone (spec 2.5).
+        // Icons are added in the final milestone (spec 2.5); the base Icon returns null meanwhile.
 
         public override string Description =>
             "Agent and particle simulation for Grasshopper. A clean-room reimplementation " +

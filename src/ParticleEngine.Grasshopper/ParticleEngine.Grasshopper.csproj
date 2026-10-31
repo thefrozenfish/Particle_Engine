@@ -1,36 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Grasshopper plugin layer. Multi-targets net48 (Rhino 7, and Rhino 8 on Windows in
-    .NET Framework mode) and net7.0 (Rhino 8 modern .NET, incl. macOS). Output extension
-    is .gha. RhinoCommon/Grasshopper are compile-only references (ExcludeAssets=runtime):
-    Rhino supplies them at load time, and excluding runtime assets also removes the
-    MSB3277 System.Net.Http warning seen in 0.3 (spec 2.2).
+    Grasshopper plugin layer. Target netstandard2.0 (single target) so the .gha loads CLASSICALLY in
+    the main load context on every host: Rhino 7 (.NET Framework 4.8 / Mono) AND Rhino 8 (both the
+    .NET Framework and modern .NET runtimes). This is what makes the ribbon tab appear.
 
-    M0: no components are registered yet. This assembly only needs to build and load.
+    Why not net48;net7.0 (spec 2.2): on the owner's Rhino 8 running modern .NET, a net7.0 .gha loads
+    in an ISOLATED load context, so Grasshopper registers the components (findable by search) but never
+    creates the ribbon tab. The 0.3 pilot was netstandard2.1 and its tab showed fine. netstandard2.0
+    reproduces that classic loading AND, unlike 2.1, still loads on .NET Framework 4.8 (fixes R1).
+    See BUILD_SPEC §17.
+
+    RhinoCommon/Grasshopper are compile-only (ExcludeAssets=runtime); Rhino supplies them at load time.
+    Referencing the 7.x API (lowest supported) keeps it loadable on Rhino 7 and 8 alike.
   -->
   <PropertyGroup>
-    <TargetFrameworks>net48;net7.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>ParticleEngine</AssemblyName>
     <RootNamespace>ParticleEngine.Grasshopper</RootNamespace>
     <TargetExt>.gha</TargetExt>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Rhino 7 API surface for the .NET Framework build (also the lowest supported API).
-       Pinned to the latest 7.x at M0 for reproducible CI builds; bump deliberately. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+  <ItemGroup>
     <PackageReference Include="RhinoCommon" Version="7.38.24338.17001" ExcludeAssets="runtime" />
     <PackageReference Include="Grasshopper" Version="7.38.24338.17001" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
-  </ItemGroup>
-
-  <!-- Rhino 8 API surface for the modern .NET build. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="RhinoCommon" Version="8.36.26296.17001" ExcludeAssets="runtime" />
-    <PackageReference Include="Grasshopper" Version="8.36.26296.17001" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>

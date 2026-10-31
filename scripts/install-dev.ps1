@@ -4,22 +4,18 @@
 
 .DESCRIPTION
   Close Rhino first. Copies ParticleEngine.gha and ParticleEngine.Core.dll together into a single
-  dev folder and removes the previous copy. Use -Target net48 when Rhino is running the .NET Framework
-  runtime (and for Rhino 7), net7.0 when Rhino 8 is running modern .NET.
+  dev folder and removes the previous copy. The plugin is a single netstandard2.0 .gha that loads on
+  every Rhino runtime (Rhino 7, Rhino 8 .NET Framework, Rhino 8 modern .NET).
 
   If you also installed the plugin through Yak or by hand elsewhere, remove that copy: two installs of the
   same plugin cause confusing load behaviour.
 
 .EXAMPLE
-  pwsh scripts/install-dev.ps1 -Target net7.0
-  pwsh scripts/install-dev.ps1 -Target net48 -Configuration Release
+  powershell -File scripts/install-dev.ps1 -Configuration Release
 #>
 param(
-    [ValidateSet('net48', 'net7.0')]
-    [string]$Target = 'net7.0',
-
     [ValidateSet('Debug', 'Release')]
-    [string]$Configuration = 'Debug'
+    [string]$Configuration = 'Release'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,7 +27,7 @@ if ($rhino) {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$source   = Join-Path $repoRoot "src\ParticleEngine.Grasshopper\bin\$Configuration\$Target"
+$source   = Join-Path $repoRoot "src\ParticleEngine.Grasshopper\bin\$Configuration\netstandard2.0"
 $dest     = Join-Path $env:APPDATA 'Grasshopper\Libraries\ParticleEngine-dev'
 
 $gha  = Join-Path $source 'ParticleEngine.gha'
@@ -55,15 +51,7 @@ New-Item -ItemType Directory -Path $dest -Force | Out-Null
 
 Copy-Item $gha  $dest
 Copy-Item $core $dest
-
-# .NET (net7.0) dynamic-loading metadata, when present. Rhino 8 uses these to resolve the
-# plugin's own dependencies (ParticleEngine.Core.dll); without them components may not register.
-foreach ($extra in @('ParticleEngine.deps.json', 'ParticleEngine.runtimeconfig.json')) {
-    $src = Join-Path $source $extra
-    if (Test-Path $src) { Copy-Item $src $dest }
-}
-
 Get-ChildItem $dest | Unblock-File
 
-Write-Host "Installed $Target ($Configuration) to $dest"
-Write-Host 'Start Rhino, then Grasshopper. If components do not appear, check File > Special Folders > Components Folder for the right Libraries location.'
+Write-Host "Installed ($Configuration) to $dest"
+Write-Host 'Start Rhino, then Grasshopper. The Particle Engine tab should appear in the ribbon. If not, check File > Special Folders > Components Folder for the right Libraries location.'
