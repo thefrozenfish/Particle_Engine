@@ -20,17 +20,18 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Rhino 7 API surface for the .NET Framework build (also the lowest supported API). -->
+  <!-- Rhino 7 API surface for the .NET Framework build (also the lowest supported API).
+       Pinned to the latest 7.x at M0 for reproducible CI builds; bump deliberately. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <PackageReference Include="RhinoCommon" Version="7.*" ExcludeAssets="runtime" />
-    <PackageReference Include="Grasshopper" Version="7.*" ExcludeAssets="runtime" />
+    <PackageReference Include="RhinoCommon" Version="7.38.24338.17001" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="7.38.24338.17001" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Rhino 8 API surface for the modern .NET build. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="RhinoCommon" Version="8.*" ExcludeAssets="runtime" />
-    <PackageReference Include="Grasshopper" Version="8.*" ExcludeAssets="runtime" />
+    <PackageReference Include="RhinoCommon" Version="8.36.26296.17001" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="8.36.26296.17001" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
