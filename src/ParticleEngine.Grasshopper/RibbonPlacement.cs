@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Grasshopper.GUI.Canvas;
@@ -10,27 +11,25 @@ namespace ParticleEngine.Grasshopper
     /// <summary>
     /// OPT-IN, OFF BY DEFAULT. On hosts with heavy ribbon overflow (many plugins), the Particle
     /// Engine tab can be pushed off the visible strip even though it loaded fine. When the user has
-    /// enabled it (persistent Grasshopper setting), this moves ONLY our tab just after the "Rhino"
-    /// tab on each session, and restores the order if anything goes wrong — other plugins' tabs are
-    /// preserved. Windows only (the ribbon is a WinForms control); does nothing on macOS.
+    /// enabled it, this moves ONLY our tab just after the "Rhino" tab on each session and restores
+    /// the order if anything goes wrong — other plugins' tabs are preserved. Windows only (the ribbon
+    /// is a WinForms control); does nothing on macOS.
     ///
-    /// This is a placement convenience, not a load fix: the plugin and its 20 components work
-    /// regardless. Toggle it with scripts/particle-engine-pin-tab.py / ...-unpin-tab.py.
+    /// The enable flag is a small file at %APPDATA%\ParticleEngine\pin-tab.flag (created/removed by
+    /// scripts/particle-engine-pin-tab.py / ...-unpin-tab.py). A file is used rather than a Grasshopper
+    /// setting because the flag must be readable reliably on every session, after GH settings load.
+    /// This is a placement convenience, not a load fix: the plugin's 20 components work regardless.
     /// </summary>
     public sealed class RibbonPlacementPriority : GH_AssemblyPriority
     {
-        internal const string EnabledKey = "ParticleEngine.PinTab.Enabled";
-
         public override GH_LoadingInstruction PriorityLoad()
         {
+            // Subscribe unconditionally (cheap); decide whether to act once the canvas/ribbon exists
+            // and the flag can be read. Reading the flag here, during early load, is unreliable.
             try
             {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    return GH_LoadingInstruction.Proceed;
-                if (!global::Grasshopper.Instances.Settings.GetValue(EnabledKey, false))
-                    return GH_LoadingInstruction.Proceed;
-
-                global::Grasshopper.Instances.CanvasCreated += OnCanvasCreated;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    global::Grasshopper.Instances.CanvasCreated += OnCanvasCreated;
             }
             catch
             {
@@ -41,11 +40,17 @@ namespace ParticleEngine.Grasshopper
 
         private static void OnCanvasCreated(GH_Canvas canvas)
         {
-            var editor = global::Grasshopper.Instances.DocumentEditor;
-            if (editor == null) return;
-            // Defer until the ribbon has finished its initial layout.
-            try { editor.BeginInvoke((Action)(() => RibbonPlacement.TryPinOurTab())); }
-            catch { }
+            try
+            {
+                if (!RibbonPlacement.IsEnabled()) return;
+                var editor = global::Grasshopper.Instances.DocumentEditor;
+                if (editor == null) return;
+                // Defer until the ribbon has finished its initial layout.
+                editor.BeginInvoke((Action)(() => RibbonPlacement.TryPinOurTab()));
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -53,6 +58,19 @@ namespace ParticleEngine.Grasshopper
     {
         private const string Us = "Particle Engine";
         private const string Anchor = "Rhino";
+
+        /// <summary>%APPDATA%\ParticleEngine\pin-tab.flag — present means the user opted in.</summary>
+        internal static string FlagPath =>
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "ParticleEngine",
+                "pin-tab.flag");
+
+        internal static bool IsEnabled()
+        {
+            try { return File.Exists(FlagPath); }
+            catch { return false; }
+        }
 
         /// <summary>Move our tab just after the Rhino tab, preserving every other tab. No-op on failure.</summary>
         internal static void TryPinOurTab()
@@ -96,7 +114,7 @@ namespace ParticleEngine.Grasshopper
                 }
                 catch
                 {
-                    // Put our tab back where it was; never leave the ribbon in a half-moved state.
+                    // Put our tab back where it was; never leave the ribbon half-moved.
                     if (!ribbon.Tabs.Contains(tab))
                         ribbon.Tabs.Insert(Math.Min(Math.Max(oldIndex, 0), ribbon.Tabs.Count), tab);
                     ribbon.LayoutRibbon();

@@ -3,9 +3,9 @@
 Run in Rhino with  _-RunPythonScript  while Grasshopper is open:
   _-RunPythonScript "D:\\CLAUDE\\Particle Engine\\scripts\\particle-engine-pin-tab.py"
 
-Sets a persistent Grasshopper setting that the plugin reads on every future session; on each
-session the plugin moves ONLY the Particle Engine tab just after the Rhino tab, restoring order if
-anything fails. This script also moves it immediately so you do not have to restart. Windows only.
+Creates a flag file at %APPDATA%\\ParticleEngine\\pin-tab.flag. The plugin reads that flag on every
+future session and, while it exists, moves ONLY the Particle Engine tab just after the Rhino tab
+(restoring order if anything fails). This script also moves it immediately. Windows only.
 Disable again with particle-engine-unpin-tab.py.
 """
 import clr
@@ -16,7 +16,7 @@ clr.AddReference('Grasshopper')
 import Grasshopper
 import Rhino
 
-ENABLED_KEY = 'ParticleEngine.PinTab.Enabled'
+FLAG = os.path.join(os.environ['APPDATA'], 'ParticleEngine', 'pin-tab.flag')
 
 
 def find_ribbon(control):
@@ -59,13 +59,15 @@ if not os.path.isdir(report_dir):
     os.makedirs(report_dir)
 path = os.path.join(report_dir, 'particle-engine-pin-tab.json')
 try:
-    settings = Grasshopper.Instances.Settings
-    settings.SetValue(ENABLED_KEY, True)
-    try:
-        settings.WritePersistentSettings()
-    except Exception:
-        pass  # Grasshopper also persists on shutdown.
-    report['enabled'] = True
+    # Write the persistent opt-in flag first, so placement survives restart even if the
+    # immediate move below fails for any reason.
+    flag_dir = os.path.dirname(FLAG)
+    if not os.path.isdir(flag_dir):
+        os.makedirs(flag_dir)
+    with open(FLAG, 'w') as f:
+        f.write('enabled')
+    report['flag'] = FLAG
+    report['flag_exists'] = os.path.isfile(FLAG)
 
     editor = Grasshopper.Instances.DocumentEditor
     if editor is None:
@@ -84,7 +86,7 @@ try:
     report['moved_to_index'] = dest
     report['tab_count'] = ribbon.Tabs.Count
     Rhino.RhinoApp.WriteLine('Particle Engine tab pinned after Rhino (tab ' + str(dest + 1) + ').')
-    Rhino.RhinoApp.WriteLine('Persistent placement is now ENABLED; it reapplies every session until you unpin.')
+    Rhino.RhinoApp.WriteLine('Persistent placement ENABLED (flag: ' + FLAG + '). It reapplies every session until you unpin.')
 except Exception:
     report['error'] = traceback.format_exc()
     Rhino.RhinoApp.WriteLine(report['error'])
