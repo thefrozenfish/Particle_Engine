@@ -20,10 +20,26 @@ namespace ParticleEngine.Grasshopper.Components
         protected ParticleComponentBase(ComponentSpec spec)
             : base(spec.Name, spec.Nick, spec.Description, "Particle Engine", spec.Subcategory)
         {
-            Spec = spec;
+            // IMPORTANT: GH_Component's constructor has ALREADY called RegisterInputParams /
+            // RegisterOutputParams (via PostConstructor) by the time this body runs. So nothing the
+            // base needs for registration may depend on a field set here — Spec is resolved from the
+            // runtime type instead (valid even mid-construction).
         }
 
-        protected ComponentSpec Spec { get; }
+        // Resolved from the concrete type name (e.g. BoxSpawnComponent -> "BoxSpawn"), so it is
+        // available while the base constructor registers ports, before any derived field is set.
+        protected ComponentSpec Spec
+        {
+            get
+            {
+                string n = GetType().Name;
+                const string suffix = "Component";
+                string key = n.EndsWith(suffix, StringComparison.Ordinal)
+                    ? n.Substring(0, n.Length - suffix.Length)
+                    : n;
+                return ComponentCatalog.ByKey(key);
+            }
+        }
 
         public override Guid ComponentGuid => Spec.Guid;
 
