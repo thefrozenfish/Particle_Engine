@@ -4,3 +4,5 @@
 *.md text
 *.gha binary
 *.dll binary
+*.png binary
+*.cmd text eol=crlf

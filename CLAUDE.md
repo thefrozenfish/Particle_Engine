@@ -1,5 +1,9 @@
 # Particle Engine — instructions for Claude Code
 
+## Latest handover — 31 October 2026
+
+Read [docs/RIBBON_FIX.md](docs/RIBBON_FIX.md) before changing plugin loading or ribbon registration. The corrected plugin is installed and host-verified on Windows Rhino 8/.NET 10.0.11. Its missing tab was outside the visible ribbon (tab 64 of 65), not a current assembly-loading failure. The session-only placement script worked; persistent placement and Mac verification remain outstanding.
+
 ## Project
 
 A native C# Grasshopper plugin that reproduces a chosen subset of Culebra.NET (agent/particle simulation) for Rhino. Primary targets: **Rhino 8 on Windows and macOS** (Intel and Apple Silicon). Best-effort: **Rhino 7 on Windows and macOS**.
@@ -16,7 +20,7 @@ Owner: Abhinav Chaudhary, computational designer, London. He develops on **Windo
 
 1. **Port parity is the contract.** Names, nicknames, order, types and access of every port must match Section 6 of the spec. A manifest conformance test enforces it. Never reorder, remove or retype a port once a version has been shared; append only.
 2. **Core never references RhinoCommon.** `ParticleEngine.Core` targets `netstandard2.0` and works on `double[]` and small structs. Rhino geometry crosses the interfaces in spec Section 2.3.
-3. **Target frameworks:** Core `netstandard2.0`; Grasshopper project `net48;net7.0` (`.gha` extension); tests `net8.0` plus `net48` on Windows. Do not use `netstandard2.1`. Reference RhinoCommon and Grasshopper 7.x for `net48` and 8.x for `net7.0`, compile-only (no copy to output).
+3. **Current target frameworks:** Core and Grasshopper project `netstandard2.0` (plugin extension `.gha`); tests `net8.0` plus `net48` on Windows. The existing build uses compile-only RhinoCommon/Grasshopper 7.38.24338.17001 and a build-only net48 System.Drawing reference. Earlier `net48;net7.0` guidance is the original design, not the current project. See BUILD_SPEC section 17 and RIBBON_FIX.md for the verified state. Do not retarget to fix ribbon overflow; portability beyond the tested Windows host still needs verification.
 4. **No third-party NuGet packages** beyond `System.Memory`/`System.Buffers` for `net48`, test frameworks, and the Rhino/Grasshopper references. Ask first for anything else.
 5. **No allocation in the per-frame hot path.** Struct-of-arrays, ring-buffer trails, counting-sort uniform grid, own PRNG (no `System.Random` in Core), no LINQ or lambdas in the step loop, no trig in neighbour tests. Run the Section 9.4 checklist before declaring a milestone done and report what you found.
 6. **Engines advance exactly once per solution.** Item access on all engine inputs plus an `if (DA.Iteration > 0)` guard (spec R4). No hard errors on multi-value inputs.
@@ -32,7 +36,7 @@ Owner: Abhinav Chaudhary, computational designer, London. He develops on **Windo
 - Write tests with the code. Run `dotnet test` and `dotnet build` yourself and fix failures; do not hand back red builds.
 - Commit after each green step with a clear message. Never commit `bin/`, `obj/`, `TestResults/`, or `.yak` / `.zip` artefacts.
 - At the end of each milestone, add a milestone report to `docs/PROGRESS.md`: files changed, tests run with OS and runtime, benchmark numbers if relevant, deviations from the spec, new `[VERIFY]` items, and **exactly which hosts were exercised**.
-- Manual Rhino testing is done by the owner. After a build, run `scripts/install-dev.ps1` (Windows) if asked, then give the owner a short numbered acceptance script for that milestone (use spec Section 11.3 as the base) and wait for results. Record them in `docs/PROGRESS.md`.
+- Manual Rhino testing is done by the owner. After a build, run `scripts/install-ribbon.ps1` (Windows) if asked, then give the owner a short numbered acceptance script for that milestone (use spec Section 11.3 as the base) and wait for results. Record them in `docs/PROGRESS.md`.
 - When blocked by a decision that is the owner's (scope, naming, licence, interpretation calls I-1 to I-4 in the spec), ask one concrete question with a recommended default. Do not stall on things the spec already decides.
 
 ## Commands (create them in milestone M0; keep this list current)
@@ -42,14 +46,14 @@ dotnet build ParticleEngine.sln -c Release
 dotnet test tests/ParticleEngine.Tests -c Release -f net8.0
 dotnet test tests/ParticleEngine.Tests -c Release -f net48          # Windows only
 dotnet run -c Release --project bench/ParticleEngine.Bench          # benchmarks
-pwsh scripts/install-dev.ps1 -Target net7.0                         # Windows dev install; use net48 for .NET Framework mode
+powershell -NoProfile -File scripts/install-ribbon.ps1 -Configuration Release  # Windows dev install
 ```
 
-Set `<CheckEolTargetFramework>false</CheckEolTargetFramework>` if the SDK warns about the `net7.0` target. The `net7.0` assets load on the .NET 8 runtime that Rhino 8 uses.
+Alternatively, double-click `Install Particle Engine.cmd` after building; it keeps installation errors visible. Save and close Rhino and Rhino Compute before installing. The current plugin target is `netstandard2.0`; see the host evidence in RIBBON_FIX.md.
 
 ## Environment notes
 
-- Owner's Rhino 8 on Windows has been seen running .NET 8.0.15. Rhino 8 on Windows can also run the .NET Framework runtime, so both builds must be tested.
+- Latest verified owner host: Rhino 8 Windows on .NET 10.0.11 (31 October 2026); the earlier pilot used .NET 8.0.15. Rhino 8 on Windows can also run the .NET Framework runtime, so both builds must be tested.
 - Grasshopper loads `.gha` from its Libraries folder (File > Special Folders > Components Folder). Install `ParticleEngine.gha` and `ParticleEngine.Core.dll` together, in one location only. Close Rhino before copying.
 - Keep file paths and line endings portable; the repo is used on Windows and macOS. Use `.gitattributes` `* text=auto`.
 - Prefer the Read/Edit/Write tools for file edits. Keep scripts in `scripts/`.

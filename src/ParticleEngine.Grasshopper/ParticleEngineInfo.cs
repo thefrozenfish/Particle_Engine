@@ -4,15 +4,13 @@ using Grasshopper.Kernel;
 namespace ParticleEngine.Grasshopper
 {
     /// <summary>
-    /// Assembly metadata Grasshopper reads when it loads the .gha. No components are
-    /// registered in M0; this only makes the plugin a recognised, loadable library so
-    /// host load can be verified before any component exists.
+    /// Assembly metadata and library icon displayed by Grasshopper.
     /// </summary>
     public sealed class ParticleEngineInfo : GH_AssemblyInfo
     {
-        public override string Name => "Particle Engine";
+        public override string Name => ParticleEngineBranding.Category;
 
-        // Icons are added in the final milestone (spec 2.5); the base Icon returns null meanwhile.
+        public override System.Drawing.Bitmap Icon => ParticleEngineBranding.ComponentIcon;
 
         public override string Description =>
             "Agent and particle simulation for Grasshopper. A clean-room reimplementation " +

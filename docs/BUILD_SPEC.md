@@ -850,6 +850,8 @@ At every milestone, state which hosts were actually exercised, and which items r
 
 ## 17. Spec change log
 
+Ribbon follow-up, 2026-10-31: at the owner's request, shared branding is brought forward from M8: a 16x16 category icon and 24x24 component/library icon. The current netstandard2.0 target is retained for this focused change. Prepared and build-tested in the Codex workspace; application to the original repository and host testing remain pending. See RIBBON_FIX.md.
+
 Append-only. Each entry: date, section, what changed, why (probe ID or owner decision). Do not edit earlier sections silently; record the deviation here and update the section it affects.
 
 | Date | Section | Change | Reason |
@@ -862,3 +864,6 @@ Append-only. Each entry: date, section, what changed, why (probe ID or owner dec
 | 2026-10-31 | 6.1–6.6 | Real defaults replace the interim guesses: Box Spawn Count **500**/Location **0** (only 0/1 exist); Flocking VA **180**/SR **70**/AV **0.24**/SV **0.09**/CV **0.045**; Stigmergy VA **60**/CM **1.5**/CR **80**/SM **0**/SR **5**; MPT PT **500**/PD **50**/PR **15** (II: TS **True**, MC **2**); Attraction AV **0.97**/MA **0.06**; Repulsion AV **1**/MA **1.5**; Bundling T **100**/R **0.5**/RB **True**/PC **40**/WC **2**; Trail Data TS **0**/MT **5000**. | Port dump. |
 | 2026-10-31 | 6.2 | Init Settings `Spawn Settings` input is **list** access. | Port dump. |
 | 2026-10-31 | 6.5 | Bundling_Engine nickname is `BE` (Culebra ships the placeholder `"Nickname"`). | Spec §6.5 intent. |
+
+| 2026-10-31 | 2 / 2.5 / 14 | Final ribbon follow-up supersedes the earlier pending-status note: the retained single netstandard2.0 build, compile-only Rhino 7 API references and build-only net48 drawing reference were installed and loaded in Windows Rhino 8/.NET 10.0.11. All 20 proxies and category branding were verified. The original multi-target matrix remains a design reference, not proof of the current implementation or untested hosts. | Owner host reports; docs/RIBBON_FIX.md. |
+| 2026-10-31 | 5 / 14 | Missing tab confirmed as overflow: tab 64 of 65 was beyond the ribbon width. Session-only repositioning after Rhino restored visibility. Persistent positioning is not implemented; no runtime change or simulation change was needed. | Saved header bounds and owner confirmation, "shows up now". |

@@ -18,7 +18,7 @@ namespace ParticleEngine.Grasshopper.Components
     public abstract class ParticleComponentBase : GH_Component
     {
         protected ParticleComponentBase(ComponentSpec spec)
-            : base(spec.Name, spec.Nick, spec.Description, "Particle Engine", spec.Subcategory)
+            : base(spec.Name, spec.Nick, spec.Description, ParticleEngineBranding.Category, spec.Subcategory)
         {
             // IMPORTANT: GH_Component's constructor has ALREADY called RegisterInputParams /
             // RegisterOutputParams (via PostConstructor) by the time this body runs. So nothing the
@@ -44,6 +44,8 @@ namespace ParticleEngine.Grasshopper.Components
         public override Guid ComponentGuid => Spec.Guid;
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
+
+        protected override System.Drawing.Bitmap Icon => ParticleEngineBranding.ComponentIcon;
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {

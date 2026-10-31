@@ -18,6 +18,7 @@ dist/
 .DS_Store
 Thumbs.db
 .idea/
+.install-backups/
 *.swp
 
 ## Local Claude Code settings
@@ -26,3 +27,6 @@ Thumbs.db
 ## Culebra port dump — raw copy keeps Culebra's tooltip text; clean-room, never commit.
 ## Only the desc-stripped culebra_ports.json is committed.
 tests/ParticleEngine.Parity/culebra_ports.raw.json
+
+# Local Rhino host diagnostic output
+diagnostics/

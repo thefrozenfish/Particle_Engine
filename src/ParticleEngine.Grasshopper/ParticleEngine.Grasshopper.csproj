@@ -1,19 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!--
-    Grasshopper plugin layer. Target netstandard2.0 (single target) so the .gha loads CLASSICALLY in
-    the main load context on every host: Rhino 7 (.NET Framework 4.8 / Mono) AND Rhino 8 (both the
-    .NET Framework and modern .NET runtimes). This is what makes the ribbon tab appear.
-
-    Why not net48;net7.0 (spec 2.2): on the owner's Rhino 8 running modern .NET, a net7.0 .gha loads
-    in an ISOLATED load context, so Grasshopper registers the components (findable by search) but never
-    creates the ribbon tab. The 0.3 pilot was netstandard2.1 and its tab showed fine. netstandard2.0
-    reproduces that classic loading AND, unlike 2.1, still loads on .NET Framework 4.8 (fixes R1).
-    See BUILD_SPEC §17.
-
-    RhinoCommon/Grasshopper are compile-only (ExcludeAssets=runtime); Rhino supplies them at load time.
-    Referencing the 7.x API (lowest supported) keeps it loadable on Rhino 7 and 8 alike.
-  -->
+  <!-- Keep the existing netstandard2.0 target and compile-only Rhino 7 API references.
+       Ribbon branding is registered explicitly by ParticleEnginePriority.
+       A target-framework change alone does not establish the cause of a missing tab. -->
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>ParticleEngine</AssemblyName>
@@ -26,6 +15,13 @@
   <ItemGroup>
     <PackageReference Include="RhinoCommon" Version="7.38.24338.17001" ExcludeAssets="runtime" />
     <PackageReference Include="Grasshopper" Version="7.38.24338.17001" ExcludeAssets="runtime" />
+    <!-- Match the System.Drawing identity in Grasshopper 7's API. Reference assemblies
+         are build-only and work on non-Windows build machines too. Rhino supplies runtime drawing. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" GeneratePathProperty="true" PrivateAssets="all" IncludeAssets="none" />
+    <Reference Include="System.Drawing">
+      <HintPath>$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)/build/.NETFramework/v4.8/System.Drawing.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -33,4 +29,10 @@
     <ProjectReference Include="..\ParticleEngine.Core\ParticleEngine.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ParticleEngine16.png" LogicalName="ParticleEngine.Grasshopper.Resources.ParticleEngine16.png" />
+    <EmbeddedResource Include="Resources\ParticleEngine24.png" LogicalName="ParticleEngine.Grasshopper.Resources.ParticleEngine24.png" />
+  </ItemGroup>
+
 </Project>
+

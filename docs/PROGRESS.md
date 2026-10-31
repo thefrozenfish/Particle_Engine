@@ -3,6 +3,8 @@
 Update this file at the end of every working session. It is the single source of current state. The spec (`BUILD_SPEC.md`) says what to build; this says where we are.
 
 **Last updated:** 2026-10-31
+
+**Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
 **Active milestone:** M1 **done** (conformance green; all 20 components visible in Rhino 8 Win modern .NET). Mac load not verified. M2 next — needs behavioural probes first.
 
@@ -233,3 +235,15 @@ single-step behaviour; those still need the probe runs (spec 12.2) before/with M
 **Next:** owner loads the M1 `.gha` in Rhino to confirm the 20 components appear. Then M2 (Spawn/Init/
 Move/Controller/Trail/Visual + Creeper_Engine straight-line motion), which wants probes P1, P8, P11,
 P12, P13 first.
+
+
+## Ribbon and installer repair — final handover, 2026-10-31
+
+- Source branding and installer fixes are present in this repository and match the verified build. All 20 component GUIDs, ports/defaults and simulation logic are unchanged.
+- Owner confirmed installation to `%APPDATA%/Grasshopper/Libraries/ParticleEngine-dev`, with backup `.install-backups/56c6bc8cefd540e5bf9431231c89012c`.
+- Actual Windows Rhino 8 host: .NET 10.0.11; one Particle plugin discovered; both assemblies loaded; 20 primary, SDK-compliant, non-obsolete proxies registered; category icon and PE/P labels present.
+- Tab was index 63 of 65, x=1764..1792 outside a 1650-wide ribbon. Repositioned to index 11 after Rhino, x=308..336, preserving six panels and all 65 tabs. User confirmed it appeared.
+- Existing validation: Release build 0 warnings/errors; Core 31/31 net8 and 31/31 net48; conformance 5/5 net8; embedded PNG dimensions checked. A standalone Windows constructor/icon check exercised all 20 classes. This does not verify simulation behaviour.
+- Added reusable diagnostic/refresh/placement scripts under `scripts`, a root installer launcher, focused evidence in `docs/verification/ribbon-host-summary.json`, and current instructions in CLAUDE.md/RIBBON_FIX.md. Report paths are repository-relative; diagnostics output is ignored.
+- Outstanding: placement persistence after restart/rebuild, Mac host checks, .NET Framework Rhino host checks and M2 simulation/probe work. No new simulation milestone is claimed.
+- Do not attribute overflow to the target framework or unrelated plugin startup errors. An unqualified Box Spawn search can find Culebra_GH; distinguish libraries by category/GUID.

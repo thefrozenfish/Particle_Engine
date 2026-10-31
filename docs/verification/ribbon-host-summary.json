@@ -1,0 +1,314 @@
+{
+  "date": "2026-10-31",
+  "host": "Rhino 8 Windows",
+  "runtime": "10.0.11",
+  "installation": "%APPDATA%\\Grasshopper\\Libraries\\ParticleEngine-dev",
+  "assembly_identities": [
+    "ParticleEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "ParticleEngine.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+  ],
+  "discovered_particle_files": 1,
+  "registered_components": [
+    {
+      "name": "Box Spawn",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000001",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Point Spawn",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000002",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Init Settings",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000003",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Move Settings",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000004",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Controller",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000005",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Flocking",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000006",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Stigmergy",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000007",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Multi Path Tracking",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000008",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Multi Path Tracking II",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000009",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Mesh Crawl",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000a",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Mesh Crawl II",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000b",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Attraction Force",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000c",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Repulsion Force",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000d",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Bundling",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000e",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Creeper_Engine",
+      "guid": "a7c3e100-0000-4a00-8b00-00000000000f",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Creeper_ZombieEngine",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000010",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Bundling_Engine",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000011",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Bundling_ZombieEngine",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000012",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Trail Data",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000013",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    },
+    {
+      "name": "Visual Settings",
+      "guid": "a7c3e100-0000-4a00-8b00-000000000014",
+      "library": "3f2a6c10-7b4e-4d2a-9c1f-0a5b6e2d41a0",
+      "exposure": "primary"
+    }
+  ],
+  "compatibility": [
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "01 | Spawn Types",
+      "sdk_compliant": true,
+      "name": "Box Spawn"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "01 | Spawn Types",
+      "sdk_compliant": true,
+      "name": "Point Spawn"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "02 | Initialize",
+      "sdk_compliant": true,
+      "name": "Init Settings"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "02 | Initialize",
+      "sdk_compliant": true,
+      "name": "Move Settings"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Controller"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Flocking"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Stigmergy"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Multi Path Tracking"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Multi Path Tracking II"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Mesh Crawl"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "03 | Behaviors",
+      "sdk_compliant": true,
+      "name": "Mesh Crawl II"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "04 | Forces",
+      "sdk_compliant": true,
+      "name": "Attraction Force"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "04 | Forces",
+      "sdk_compliant": true,
+      "name": "Repulsion Force"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "04 | Forces",
+      "sdk_compliant": true,
+      "name": "Bundling"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "05 | Engine",
+      "sdk_compliant": true,
+      "name": "Creeper_Engine"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "05 | Engine",
+      "sdk_compliant": true,
+      "name": "Creeper_ZombieEngine"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "05 | Engine",
+      "sdk_compliant": true,
+      "name": "Bundling_Engine"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "05 | Engine",
+      "sdk_compliant": true,
+      "name": "Bundling_ZombieEngine"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "06 | Display",
+      "sdk_compliant": true,
+      "name": "Trail Data"
+    },
+    {
+      "obsolete": false,
+      "exposure": "primary",
+      "subcategory": "06 | Display",
+      "sdk_compliant": true,
+      "name": "Visual Settings"
+    }
+  ],
+  "category_icon": [
+    16,
+    16
+  ],
+  "category_short_name": "PE",
+  "category_symbol": "P",
+  "placement": {
+    "tab_count": 65,
+    "before": {
+      "display_style": "Symbol",
+      "index": 63,
+      "panel_count": 6,
+      "active_tab": "Fairyfly",
+      "ribbon_width": 1650,
+      "grip": {
+        "left": 1764,
+        "bottom": 22,
+        "top": 0,
+        "right": 1792
+      }
+    },
+    "after": {
+      "display_style": "Symbol",
+      "index": 11,
+      "panel_count": 6,
+      "active_tab": "Particle Engine",
+      "ribbon_width": 1650,
+      "grip": {
+        "left": 308,
+        "bottom": 22,
+        "top": 0,
+        "right": 336
+      }
+    }
+  },
+  "owner_confirmation": "shows up now.",
+  "placement_persistent": false,
+  "mac_host_verified_in_this_repair": false,
+  "note": "Focused summary of owner-run reports; unrelated plugin inventories/errors omitted."
+}
