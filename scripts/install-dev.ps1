@@ -24,8 +24,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-if (Get-Process -Name 'Rhino' -ErrorAction SilentlyContinue) {
-    throw 'Rhino is running. Save your work, close Rhino, then run this script again.'
+$rhino = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'Rhino*' }
+if ($rhino) {
+    $names = ($rhino | Select-Object -ExpandProperty Name -Unique) -join ', '
+    throw "Rhino is running (process: $names). Save your work and close ALL Rhino windows, then run this again. Closing only the Grasshopper window is not enough - Rhino keeps the plugin loaded."
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -41,8 +43,15 @@ foreach ($file in @($gha, $core)) {
     }
 }
 
-if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
-New-Item -ItemType Directory -Path $dest | Out-Null
+if (Test-Path $dest) {
+    try {
+        Remove-Item -Recurse -Force $dest -ErrorAction Stop
+    }
+    catch {
+        throw "Could not replace the dev install at '$dest': a file there is locked. ParticleEngine.gha is still loaded by a running Rhino. Close ALL Rhino processes (check Task Manager for Rhino.exe) and run this again."
+    }
+}
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
 
 Copy-Item $gha  $dest
 Copy-Item $core $dest
