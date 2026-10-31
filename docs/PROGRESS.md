@@ -4,7 +4,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Last updated:** 2026-10-31
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M0 **done** (CI green on 3 OS + Rhino 8 Win modern .NET load). M1 not started.
+**Active milestone:** M1 — code-complete (conformance test green; .gha builds on both targets). Remaining exit item: components visible in Rhino on Win + Mac (owner).
 
 ## 1. Milestones
 
@@ -13,7 +13,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M | Deliverable | Status | Hosts exercised | Report |
 | --- | --- | --- | --- | --- |
 | M0 | Retarget, solution layout, 3-OS CI, legacy tests green | done | CI green: Win + macOS Intel + macOS Apple Silicon. Rhino 8 Win modern .NET (.NET 10) load verified. net48 Rhino load deferred (owner on modern .NET). | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
-| M1 | 20-component port-parity scaffold + manifest test | todo | | |
+| M1 | 20-component port-parity scaffold + manifest test | doing | Windows: build + conformance test (vs real Culebra dump). Not yet shown in Rhino. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | todo | | |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
 | M4 | Stigmergy, Multi Path Tracking I/II, Mesh Crawl I/II, children | todo | | |
@@ -28,7 +28,8 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 - [x] Confirm interpretation calls I-1..I-4 (owner: assume them) — I-1 both Multi Path Tracking versions · I-2 both Mesh Crawl versions · I-3 Rhino 7 best-effort alongside Rhino 8 · I-4 colour ports kept but ignored.
 - [ ] **M0 exit:** run the Rhino 8 Windows acceptance script (both runtimes) from the end of the M0 report and record results in Section 4.
 - [ ] **M0 exit:** push to GitHub so CI produces Core-test logs on Windows + macOS Intel + macOS Apple Silicon; record in Section 5.
-- [ ] Run the port-dump script in **Rhino 8** (owner runs Culebra on Rhino 8, not Rhino 7): open `tests/ParticleEngine.Parity/dump_culebra_ports.py` in Rhino 8's ScriptEditor as a standalone script. It writes `tests/ParticleEngine.Parity/culebra_ports.json`. Tell Claude the count. **Do this before M1.** (Deviates from spec 12.1 which assumed Rhino 7 — see change log.)
+- [x] Run the port-dump script in **Rhino 8**: done 2026-10-31, 32 components captured. Sanitized fixture committed as `tests/ParticleEngine.Parity/culebra_ports.json`; conformance test built against it.
+- [ ] **M1 exit:** load the M1 `.gha` in Rhino 8 (Win) and confirm the six subcategories show all 20 components; ideally check on a Mac too. Dev build staged via `install-dev.ps1`.
 - [ ] Run probes P1, P8, P11, P12, P13 before M2; P2–P4 before M3; P5–P7, P10 before M4; P9 before M6 (spec 12.2). Save each result as `tests/ParticleEngine.Parity/probe_PNN.md` (setup, settings, output text).
 - [ ] Test each milestone build in Rhino on Windows (both runtimes) and record results in Section 4.
 - [ ] Test on a Mac (Rhino 8 Apple Silicon; Rhino 8 Intel and Rhino 7 if available) at M1, M2, M5, M8 at minimum.
@@ -176,3 +177,49 @@ mutable state. Full checklist re-run applies from M2 when a `Step()` exists.
 **Next:** owner runs the Rhino 8 Windows acceptance script (both runtimes) and pushes for CI. Then M1:
 register all 20 components with correct ports + the manifest conformance test (needs the Culebra port
 dump, spec 12.1, before it can be fully populated).
+
+### M1 — port-parity scaffold (20 components) + conformance — 2026-10-31
+
+**Context.** Built against the **real Culebra port dump** from the owner's Rhino 8 (32 components
+captured; our 20 in scope). Ground truth beat the public-docs spec in several places (see BUILD_SPEC
+§17). No simulation logic yet — this is the port/registration scaffold (spec M1).
+
+**Files changed (created):**
+- `src/ParticleEngine.Core/Manifest/` — `PortSpec.cs`, `ComponentSpec.cs`, `ComponentCatalog.cs`
+  (the 20 components as data), `ComponentManifest.cs` (`Generate()`, no Rhino dependency).
+- `src/ParticleEngine.Core/Settings/Settings.cs` — immutable settings/behaviour/force classes + `IParticleSettings`.
+- `src/ParticleEngine.Grasshopper/Components/` — `ParticleComponentBase.cs` (registers ports from the
+  catalog), `Components.cs` (19 components), `ControllerComponent.cs` (variable inputs).
+- `src/ParticleEngine.Grasshopper/Goo/ParticleGoo.cs` — `GH_Goo<T>` wrapper (Duplicate = self).
+- `tests/ParticleEngine.Parity/` — real test project: `ConformanceTests.cs` vs `culebra_ports.json`.
+- `tests/ParticleEngine.Tests/` — `CatalogTests.cs`, `SettingsTests.cs`.
+- `.github/workflows/ci.yml` — now also runs the conformance test on all 3 OS.
+
+**Tests run (OS / runtime / count / result):**
+- Windows 11 / net8.0 / 31 core + 5 conformance / **pass**
+- Windows 11 / net48 / 31 core / **pass** (conformance is net8.0 only)
+- Conformance asserts our 20 components' names/nicks/order/types match the dump, with documented
+  exceptions (Creeper engines' Init/Move Settings item-not-list per R4; Bundling_Engine nick BE).
+
+**Builds:** `dotnet build ParticleEngine.sln -c Release` → **0 warnings, 0 errors**; `.gha` builds for
+net48 and net7.0.
+
+**Hosts exercised:** Windows 11 — **compiles + tests pass**. Rhino — **not loaded yet** for M1; the
+"components visible in the six subcategories" exit check is pending (owner, Win + ideally Mac).
+
+**Deviations from spec (logged in BUILD_SPEC §17):** engines take a Move Settings input directly
+(overrides §6.2); Mesh Crawl has a 4th `Multiplier` port; many real defaults; Init Settings spawn
+input is list; Bundling_Engine nick BE; engine settings inputs kept item (R4). New component
+`Bundling_ZombieEngine` added.
+
+**Review checklist (spec 9.4):** no hot path yet; catalog/components allocate only at registration.
+No `System.Random`, no LINQ in Core hot code (none exists yet). Defaults written once via
+`SetPersistentData` in the base (R3); conformance asserts single-valued defaults.
+
+**New / changed [VERIFY] items:** Mesh Crawl `Multiplier` role unknown (VERIFY P7). The behavioural
+probe semantics (P1–P13) remain open — the port dump gave **defaults and port shapes**, not
+single-step behaviour; those still need the probe runs (spec 12.2) before/with M2–M6.
+
+**Next:** owner loads the M1 `.gha` in Rhino to confirm the 20 components appear. Then M2 (Spawn/Init/
+Move/Controller/Trail/Visual + Creeper_Engine straight-line motion), which wants probes P1, P8, P11,
+P12, P13 first.

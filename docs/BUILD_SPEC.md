@@ -856,3 +856,9 @@ Append-only. Each entry: date, section, what changed, why (probe ID or owner dec
 | --- | --- | --- | --- |
 | 2026-10-31 | 12.1 | Port dump is run in **Rhino 8**, not Rhino 7. | Owner runs Culebra on Rhino 8; Rhino 8 is the primary target. |
 | 2026-10-31 | 1 / 2 | Build is a **fresh** 0.4.0, not a port of the 0.3.0 source (which was never supplied). Handover kept as an overridable reference only. | Owner decision, 2026-10-31. |
+| 2026-10-31 | 6.5 / 6.2 / 4.2 | **Engines take a Move Settings input directly.** Creeper_Engine / Creeper_ZombieEngine have both `Init Settings` and `Move Settings` inputs (both nicknamed `S`). This overrides §6.2's note that Move Settings feeds the Controller; Move Settings wires into the engine. | Port dump (owner's Culebra, Rhino 8). |
+| 2026-10-31 | 6.5 | Engine `Init Settings` / `Move Settings` kept **item** access (one sim per solution, R4); Culebra uses `list`. Documented exception in the conformance test. | Deviation per R4. |
+| 2026-10-31 | 6.3 | **Mesh Crawl has a 4th input** `Multiplier` (nick `M`, Number, default 1.5), after Mesh Projection Distance; spec missed it. Semantics `[VERIFY]` P7. | Port dump. |
+| 2026-10-31 | 6.1–6.6 | Real defaults replace the interim guesses: Box Spawn Count **500**/Location **0** (only 0/1 exist); Flocking VA **180**/SR **70**/AV **0.24**/SV **0.09**/CV **0.045**; Stigmergy VA **60**/CM **1.5**/CR **80**/SM **0**/SR **5**; MPT PT **500**/PD **50**/PR **15** (II: TS **True**, MC **2**); Attraction AV **0.97**/MA **0.06**; Repulsion AV **1**/MA **1.5**; Bundling T **100**/R **0.5**/RB **True**/PC **40**/WC **2**; Trail Data TS **0**/MT **5000**. | Port dump. |
+| 2026-10-31 | 6.2 | Init Settings `Spawn Settings` input is **list** access. | Port dump. |
+| 2026-10-31 | 6.5 | Bundling_Engine nickname is `BE` (Culebra ships the placeholder `"Nickname"`). | Spec §6.5 intent. |
