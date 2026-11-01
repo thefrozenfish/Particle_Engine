@@ -80,3 +80,35 @@ as the last point; what happens once more than 10 points would exist (does it ca
 
 When a probe disagrees with our interim rule, the probe wins (spec rule 8): I update the code, add a
 golden test from your recorded numbers, and log the change in BUILD_SPEC §17. Then M2 can be marked done.
+
+---
+
+# M3 probes (P2, P3, P4) — flocking and forces
+
+Same method: **Point Spawn** (fixed starts) → **Zombie engine**, **Iterations = 1** (a single step),
+read **Creepers** into a Panel. Compare the 1-step velocity/position change to our interim rule.
+
+## P2 — Attraction law
+
+**Setup:** 1 stationary agent at the origin (Initial Speed 0). One **Attraction** target at distance
+d = **0.25 / 0.5 / 0.75 / 0.99 / 1.01 × threshold**. Attraction Value = 1, Max large; then Max small.
+
+**Record:** the 1-step displacement vs d; that it's zero outside the threshold; the effect of Max.
+*(Our interim: magnitude min(Value·(1 − d/threshold), Max), toward the target, zero beyond threshold.)*
+
+## P3 — Repulsion law
+
+**Setup:** same as P2 but with a **Repulsion** force.
+**Record:** same quantities; direction should be away from the target.
+*(Our interim: the mirror of attraction.)*
+
+## P4 — Flocking maths
+
+**Setup:** two agents, known headings, separation d. Test **Align**, **Separation**, **Cohesion** one at
+a time (set the other two weights to 0). Then place the neighbour **behind** the agent and sweep
+**View Angle = 90 / 180 / 270 / 360**. Then d just inside / outside Search Radius.
+
+**Record:** the 1-step velocity change for each; whether View Angle is the **full** or **half** field of
+view (does 180 include/exclude the side neighbour?); the separation falloff; the cap by Max Force.
+*(Our interim: classic Reynolds steering; VA = full field of view, half-angle cone; separation weighted
+by 1/d².)*

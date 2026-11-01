@@ -6,7 +6,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M2 — implemented to interim rules (Core + GH build/tests green on Windows). Exit pending: behavioural probes P1/P8/P11/P12/P13 and a Timer-driven Rhino run.
+**Active milestone:** M3 implemented to interim rules (Core + GH build/tests green). M2 verified running in Rhino. Exit pending for both: probes (M2 P1/P8/P11/P12/P13; M3 P2/P3/P4) and a Rhino test of flocking/forces.
 
 ## 1. Milestones
 
@@ -17,7 +17,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M0 | Retarget, solution layout, 3-OS CI, legacy tests green | done | CI green: Win + macOS Intel + macOS Apple Silicon. Rhino 8 Win modern .NET (.NET 10) load verified. net48 Rhino load deferred (owner on modern .NET). | [M0 report](#m0--fresh-solution-layout--tested-core-foundation--2026-10-31) |
 | M1 | 20-component port-parity scaffold + manifest test | done | Win: build + conformance (vs real Culebra dump); Rhino 8 Win modern .NET shows all 20 components in the 6 subcategories. Mac not verified. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | doing | Win: Core+GH build + 48 Core tests green. Interim rules (VERIFY P1/P8/P11/P12/P13). Rhino run + probes pending. | [M2 report](#m2--core--grasshopper-interim--2026-10-31) |
-| M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | todo | | |
+| M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | doing | Win: Core+GH build + 64 Core tests green (grid vs brute-force; flocking/forces). Interim VERIFY P2/P3/P4. Rhino run + probes pending. | [M3 report](#m3--spatial-grid--flocking--forces-interim--2026-11-01) |
 | M4 | Stigmergy, Multi Path Tracking I/II, Mesh Crawl I/II, children | todo | | |
 | M5 | Creeper_ZombieEngine (background task, cancellation) | todo | | |
 | M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | todo | | |
@@ -280,6 +280,42 @@ first solve / Reset; Graphic outputs empty). Mid-run Init/Move changes apply on 
 
 **Next:** owner runs the M2 acceptance def in Rhino (Timer-driven), and the probes P1/P8/P11/P12/P13
 against Culebra to confirm/adjust the interim rules before M2 is marked done.
+
+### M3 — spatial grid + flocking + forces (interim) — 2026-11-01
+
+**Scope.** Uniform spatial grid, Flocking (separation/alignment/cohesion with view cone), Attraction
+and Repulsion forces, and the Connectivity output. Built autonomously to interim rules while the owner
+was away (probe-dependent specifics tagged `VERIFY(P2/P3/P4)`). Not yet run in Rhino.
+
+**Files created/changed:**
+- Core: `UniformGrid.cs` (counting-sort CSR neighbour grid); `CreeperSimulation.cs` now applies a
+  `BehaviorData` stack each frame — flocking via the grid (view cone by dot vs precomputed cos(VA/2),
+  squared compares, sqrt only for survivors), attraction/repulsion forces, and capped connectivity
+  recording.
+- GH: `Components/BehaviorComponents.cs` (Flocking), `Components/ForceComponents.cs` (Attraction/
+  Repulsion + threshold-viz circles); `CreeperEngineComponent` reads Behavioral Settings, drives the
+  sim's behaviours, and emits Connectivity (Geometry output / Graphic drawing); `Components.cs` trimmed.
+- Tests: `UniformGridTests.cs` (grid candidates ⊇ brute-force neighbours, 2D/3D, radii 0.5–7),
+  `FlockingForcesTests.cs` (separation/alignment/cohesion isolated, view cone, attraction/repulsion/
+  threshold/max).
+
+**Tests run:** Windows 11 / net8.0 / **64 core + 5 conformance / pass**; net48 / 64 core / pass.
+**Builds:** solution **0 errors** (a pre-existing LF/CRLF note aside). Still exactly 20 components.
+
+**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino — NOT run.** Flocking/forces/
+connectivity are untested in the host; expect to shake out GH-runtime issues on first run, as in M2.
+
+**Review checklist (spec 9.4):** grid build is counting-sort into flat arrays (no per-cell lists);
+neighbour loop uses `for` over `Items`, squared distances, no trig (cos precomputed), sqrt only for
+survivors; behaviour dispatch via `is` type checks (no LINQ in the loop); connectivity capped at
+200k and arrays reused. Benchmarks are M7.
+
+**New / open `[VERIFY]`:** P2 (attraction law/falloff/Max), P3 (repulsion law), P4 (flocking maths;
+View Angle full vs half; separation falloff). Interim: classic Reynolds steering; force
+`min(Value·(1−d/threshold), Max)`; VA treated as full field of view with a half-angle cone.
+
+**Next:** owner runs flocking/forces in Rhino, and probes P2/P3/P4 against Culebra. Then fold results
+into golden tests and the spec change log, and M3 is done.
 
 
 ## Ribbon and installer repair — final handover, 2026-10-31
