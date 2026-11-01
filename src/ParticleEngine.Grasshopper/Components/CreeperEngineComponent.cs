@@ -92,23 +92,28 @@ namespace ParticleEngine.Grasshopper.Components
 
             if (_displayMode == 1)
             {
-                // Geometry mode: real trail curves, one branch per creeper.
-                var tree = new GH_Structure<GH_Curve>();
+                // Geometry mode: trail HISTORY as points, one branch per creeper (oldest -> newest ->
+                // current head), so a downstream PolyLine/Interpolate/Nurbs component builds the agent
+                // curve. The Trails port is generic, so points are valid output.
+                var tree = new GH_Structure<GH_Point>();
                 if (_sim.TrailsStored)
                 {
                     TrailBuffer t = _sim.Trails;
                     for (int i = 0; i < n; i++)
                     {
-                        var poly = new Polyline(t.Length(i) + 1);
+                        var path = new GH_Path(i);
                         for (int k = 0; k < t.Length(i); k++)
                         {
                             t.Get(i, k, out double x, out double y, out double z);
-                            poly.Add(x, y, z);
+                            tree.Append(new GH_Point(new Point3d(x, y, z)), path);
                         }
-                        poly.Add(heads[i]); // head after the stored points (spec 6.5)
-                        if (poly.Count >= 2)
-                            tree.Append(new GH_Curve(poly.ToPolylineCurve()), new GH_Path(i));
+                        tree.Append(new GH_Point(heads[i]), path); // current position last
                     }
+                }
+                else
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                        "Connect Trail Data (Trail = true) to Visual Settings to record trails.");
                 }
                 DA.SetDataTree(1, tree);
                 _drawHeads = System.Array.Empty<Point3d>();
@@ -118,12 +123,12 @@ namespace ParticleEngine.Grasshopper.Components
             else
             {
                 // Graphic mode: no geometry outputs; build the draw buffers for DrawViewportWires.
-                DA.SetDataTree(1, new GH_Structure<GH_Curve>());
+                DA.SetDataTree(1, new GH_Structure<GH_Point>());
                 BuildGraphicBuffers(heads);
             }
 
             // Connectivity is produced only by Flocking with Connect = true (M3); empty here.
-            DA.SetDataList(2, new List<GH_Curve>());
+            DA.SetDataList(2, new List<GH_Point>());
         }
 
         private void BuildGraphicBuffers(List<Point3d> heads)
