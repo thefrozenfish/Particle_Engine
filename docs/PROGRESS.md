@@ -68,6 +68,7 @@ Record per milestone. `OK` / `FAIL` / `-` (not run). Include Rhino build number 
 | M0 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | net7.0 .gha loaded into process (AppDomain shows `ParticleEngine`). No tab / no Libraries entry — expected, 0 components. |
 | M1 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | All 20 components visible in the six subcategories. Needed two fixes: `EnableDynamicLoading` (resolve Core.dll) + ctor NRE fix (Spec resolved from runtime type). |
 | M2 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | OK | Timer-driven run: creepers spawn/move/bounce; Geometry Trails point-tree → PolyLine = agent curves. Graphic mode, Reset, save/reopen not yet confirmed. |
+| M3 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | OK | Flocking motion, Attraction force and Connectivity output all run (first try, no issues). Probes P2/P3/P4 pending. |
 | | Rhino 8 Mac, Apple Silicon | | | | | | |
 | | Rhino 8 Mac, Intel | | | | | | |
 | | Rhino 7 Win | | | | | | |
@@ -302,8 +303,9 @@ was away (probe-dependent specifics tagged `VERIFY(P2/P3/P4)`). Not yet run in R
 **Tests run:** Windows 11 / net8.0 / **64 core + 5 conformance / pass**; net48 / 64 core / pass.
 **Builds:** solution **0 errors** (a pre-existing LF/CRLF note aside). Still exactly 20 components.
 
-**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino — NOT run.** Flocking/forces/
-connectivity are untested in the host; expect to shake out GH-runtime issues on first run, as in M2.
+**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino 8 Win (modern .NET): RUN VERIFIED
+(owner, 2026-11-01)** — flocking motion, Attraction force, and the Connectivity output all work, with
+no GH-runtime issues on the first run. Probes P2/P3/P4 still pending to confirm the interim rules.
 
 **Review checklist (spec 9.4):** grid build is counting-sort into flat arrays (no per-cell lists);
 neighbour loop uses `for` over `Items`, squared distances, no trig (cos precomputed), sqrt only for
