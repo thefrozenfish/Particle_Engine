@@ -50,7 +50,14 @@ namespace ParticleEngine.Grasshopper.Components
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             foreach (var port in Spec.Inputs)
-                pManager.AddParameter(CreateParam(port));
+            {
+                IGH_Param param = CreateParam(port);
+                // Generic inputs carry opaque settings (or are reserved, like Color Data); we default
+                // or validate them in code, so mark them optional — an unconnected one must not block
+                // the whole component. Concrete/geometry inputs stay required (or hold a default value).
+                if (port.Kind == PortKind.Generic) param.Optional = true;
+                pManager.AddParameter(param);
+            }
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
