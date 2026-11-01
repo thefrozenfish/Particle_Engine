@@ -66,10 +66,13 @@ namespace ParticleEngine.Grasshopper.Components
                 pManager.AddParameter(CreateParam(port));
         }
 
-        // M1 scaffold: no simulation logic yet.
+        // M1 scaffold: no simulation logic yet. M2+ components override this.
         protected override void SolveInstance(IGH_DataAccess DA)
         {
         }
+
+        /// <summary>Add a warning (exposed so shared solver helpers can report on behalf of a component).</summary>
+        internal void Warn(string message) => AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, message);
 
         /// <summary>
         /// Build a fully-configured Grasshopper parameter from a <see cref="PortSpec"/>. Persistent

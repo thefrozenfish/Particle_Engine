@@ -52,7 +52,7 @@ namespace ParticleEngine.Grasshopper.Components
             MoveSettings move = GhInput.GetSettings<MoveSettings>(DA, 1)
                                 ?? new MoveSettings(false, 1, 0, 0, 0, 5, 0.5, 1);
 
-            // Behavioral Settings (index 2) is read in M3+; ignored here.
+            BehaviorData? behaviors = GhInput.GetSettings<BehaviorData>(DA, 2); // from the Controller
 
             VisualSettings? visual = GhInput.GetSettings<VisualSettings>(DA, 3);
             _displayMode = visual?.DisplayMode ?? 0;
@@ -63,15 +63,16 @@ namespace ParticleEngine.Grasshopper.Components
 
             if (_sim == null) _sim = new CreeperSimulation();
 
-            // First solve or Reset -> frame 0; otherwise advance one frame. (InitSettings/Move changes
-            // mid-run take effect on the next Reset — VERIFY P13 / spec 4.4.)
+            // First solve or Reset -> frame 0; otherwise advance one frame. Behaviour/Visual changes take
+            // effect on the next frame; Init/Move changes apply on the next Reset (VERIFY P13 / spec 4.4).
             if (!_initialized || reset)
             {
-                _sim.Initialize(init, move, trail, Seed);
+                _sim.Initialize(init, move, trail, Seed, behaviors);
                 _initialized = true;
             }
             else
             {
+                _sim.Behaviors = behaviors;
                 _sim.Step();
             }
 
@@ -89,6 +90,14 @@ namespace ParticleEngine.Grasshopper.Components
             var heads = new List<Point3d>(n);
             for (int i = 0; i < n; i++) heads.Add(new Point3d(s.Px[i], s.Py[i], s.Pz[i]));
             DA.SetDataList(0, heads);
+
+            // Connectivity: lines between neighbours (Flocking Connect = true).
+            var connLines = new List<Line>(_sim.ConnectivityCount);
+            for (int k = 0; k < _sim.ConnectivityCount; k++)
+            {
+                int a = _sim.ConnectivityI[k], b = _sim.ConnectivityJ[k];
+                if (a < n && b < n) connLines.Add(new Line(heads[a], heads[b]));
+            }
 
             if (_displayMode == 1)
             {
@@ -116,6 +125,7 @@ namespace ParticleEngine.Grasshopper.Components
                         "Connect Trail Data (Trail = true) to Visual Settings to record trails.");
                 }
                 DA.SetDataTree(1, tree);
+                DA.SetDataList(2, connLines.ConvertAll(l => new GH_Line(l)));
                 _drawHeads = System.Array.Empty<Point3d>();
                 _drawLines.Clear();
                 _clip = BoundingBox.Empty;
@@ -124,14 +134,12 @@ namespace ParticleEngine.Grasshopper.Components
             {
                 // Graphic mode: no geometry outputs; build the draw buffers for DrawViewportWires.
                 DA.SetDataTree(1, new GH_Structure<GH_Point>());
-                BuildGraphicBuffers(heads);
+                DA.SetDataList(2, new List<GH_Line>());
+                BuildGraphicBuffers(heads, connLines);
             }
-
-            // Connectivity is produced only by Flocking with Connect = true (M3); empty here.
-            DA.SetDataList(2, new List<GH_Point>());
         }
 
-        private void BuildGraphicBuffers(List<Point3d> heads)
+        private void BuildGraphicBuffers(List<Point3d> heads, List<Line> connLines)
         {
             _drawHeads = heads.ToArray();
             _drawLines.Clear();
@@ -155,6 +163,8 @@ namespace ParticleEngine.Grasshopper.Components
                     if (has) _drawLines.Add(new Line(prev, heads[i])); // last stored -> head
                 }
             }
+
+            _drawLines.AddRange(connLines); // connectivity lines are drawn too
 
             _clip = clip;
         }

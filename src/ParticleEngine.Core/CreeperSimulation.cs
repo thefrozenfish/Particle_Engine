@@ -31,6 +31,18 @@ namespace ParticleEngine.Core
         private readonly UniformGrid _grid = new UniformGrid();
         private bool _needGrid;
 
+        // Neighbour pairs recorded when a Flocking behaviour has Connect = true (spec 7.2). Capped.
+        private const int MaxConnections = 200000;
+        private int[] _connI = Array.Empty<int>();
+        private int[] _connJ = Array.Empty<int>();
+        private int _connCount;
+        private bool _recordConn;
+
+        /// <summary>Number of neighbour-connection pairs recorded this frame (Flocking Connect = true).</summary>
+        public int ConnectivityCount => _connCount;
+        public int[] ConnectivityI => _connI;
+        public int[] ConnectivityJ => _connJ;
+
         /// <summary>Behaviour/force stack from the Controller. May change between frames (spec 4.4);
         /// the engine sets it each solve. Null or empty = straight-line motion (M2).</summary>
         public BehaviorData? Behaviors { get; set; }
@@ -133,11 +145,18 @@ namespace ParticleEngine.Core
         private void PrepareBehaviors()
         {
             _needGrid = false;
+            _recordConn = false;
+            _connCount = 0;
             if (Behaviors == null) return;
 
             double maxSearch = 0;
             foreach (BehaviorSpec spec in Behaviors.Stack)
-                if (spec is FlockingSpec f) { _needGrid = true; if (f.SearchRadius > maxSearch) maxSearch = f.SearchRadius; }
+                if (spec is FlockingSpec f)
+                {
+                    _needGrid = true;
+                    if (f.SearchRadius > maxSearch) maxSearch = f.SearchRadius;
+                    if (f.Connect) _recordConn = true;
+                }
 
             if (_needGrid)
                 _grid.Build(_state.Px, _state.Py, _state.Pz, _state.Count, maxSearch > 1e-9 ? maxSearch : 1.0, _dimension == 0);
@@ -204,6 +223,17 @@ namespace ParticleEngine.Core
                             aliX += _state.Vx[j]; aliY += _state.Vy[j]; aliZ += _state.Vz[j];
                             cohX += _state.Px[j]; cohY += _state.Py[j]; cohZ += _state.Pz[j];
                             count++;
+
+                            if (_recordConn && f.Connect && j > i && _connCount < MaxConnections)
+                            {
+                                if (_connI.Length <= _connCount)
+                                {
+                                    int cap = _connI.Length == 0 ? 256 : _connI.Length * 2;
+                                    Array.Resize(ref _connI, cap);
+                                    Array.Resize(ref _connJ, cap);
+                                }
+                                _connI[_connCount] = i; _connJ[_connCount] = j; _connCount++;
+                            }
                         }
                     }
 

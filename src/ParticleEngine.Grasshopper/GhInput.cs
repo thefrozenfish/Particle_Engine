@@ -94,6 +94,14 @@ namespace ParticleEngine.Grasshopper
             return flat;
         }
 
+        /// <summary>Threshold for target index with longest-list behaviour: one value applies to all.</summary>
+        internal static double ThresholdFor(IReadOnlyList<double> thresholds, int index)
+        {
+            if (thresholds == null || thresholds.Count == 0) return 10.0; // spec fallback
+            if (thresholds.Count == 1) return thresholds[0];
+            return thresholds[index < thresholds.Count ? index : thresholds.Count - 1];
+        }
+
         /// <summary>World axis-aligned min/max of a Box (Core works on AABB bounds).</summary>
         internal static void BoxBounds(Box box, out double[] min, out double[] max)
         {

@@ -7,12 +7,7 @@ namespace ParticleEngine.Grasshopper.Components
     // The M2 components (spawn, init, move, trail, visual, Controller, Creeper_Engine) have real logic
     // and live in their own files.
 
-    // ----- 03 | Behaviors (M3-M4) -----
-    public sealed class FlockingComponent : ParticleComponentBase
-    {
-        public FlockingComponent() : base(ComponentCatalog.ByKey("Flocking")) { }
-    }
-
+    // ----- 03 | Behaviors (Flocking has real behaviour in BehaviorComponents.cs; rest are M4) -----
     public sealed class StigmergyComponent : ParticleComponentBase
     {
         public StigmergyComponent() : base(ComponentCatalog.ByKey("Stigmergy")) { }
@@ -38,17 +33,7 @@ namespace ParticleEngine.Grasshopper.Components
         public MeshCrawlIIComponent() : base(ComponentCatalog.ByKey("MeshCrawlII")) { }
     }
 
-    // ----- 04 | Forces (M3-M6) -----
-    public sealed class AttractionForceComponent : ParticleComponentBase
-    {
-        public AttractionForceComponent() : base(ComponentCatalog.ByKey("AttractionForce")) { }
-    }
-
-    public sealed class RepulsionForceComponent : ParticleComponentBase
-    {
-        public RepulsionForceComponent() : base(ComponentCatalog.ByKey("RepulsionForce")) { }
-    }
-
+    // ----- 04 | Forces (Attraction/Repulsion have real behaviour in ForceComponents.cs; Bundling is M6) -----
     public sealed class BundlingComponent : ParticleComponentBase
     {
         public BundlingComponent() : base(ComponentCatalog.ByKey("Bundling")) { }
