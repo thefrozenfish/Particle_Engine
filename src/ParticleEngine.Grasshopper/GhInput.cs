@@ -102,6 +102,29 @@ namespace ParticleEngine.Grasshopper
             return thresholds[index < thresholds.Count ? index : thresholds.Count - 1];
         }
 
+        /// <summary>Convert a curve to flat x,y,z polyline points for Core path tracking (spec 7.4):
+        /// exact for polylines, sampled otherwise.</summary>
+        internal static double[] CurveToFlat(Curve curve)
+        {
+            if (!curve.TryGetPolyline(out Polyline pl))
+            {
+                pl = new Polyline();
+                double[] ts = curve.DivideByCount(50, true);
+                if (ts != null)
+                    foreach (double t in ts) pl.Add(curve.PointAt(t));
+                else { pl.Add(curve.PointAtStart); pl.Add(curve.PointAtEnd); }
+            }
+
+            var flat = new double[pl.Count * 3];
+            for (int i = 0; i < pl.Count; i++)
+            {
+                flat[i * 3] = pl[i].X;
+                flat[i * 3 + 1] = pl[i].Y;
+                flat[i * 3 + 2] = pl[i].Z;
+            }
+            return flat;
+        }
+
         /// <summary>World axis-aligned min/max of a Box (Core works on AABB bounds).</summary>
         internal static void BoxBounds(Box box, out double[] min, out double[] max)
         {
