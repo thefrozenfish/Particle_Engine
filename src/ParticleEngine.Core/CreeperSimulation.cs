@@ -28,6 +28,13 @@ namespace ParticleEngine.Core
         private int _trailStep = 1;
         private int _maxTrail = 100;
 
+        private readonly UniformGrid _grid = new UniformGrid();
+        private bool _needGrid;
+
+        /// <summary>Behaviour/force stack from the Controller. May change between frames (spec 4.4);
+        /// the engine sets it each solve. Null or empty = straight-line motion (M2).</summary>
+        public BehaviorData? Behaviors { get; set; }
+
         public int Frame { get; private set; }
         public int Count => _state.Count;
         public ParticleState State => _state;
@@ -36,12 +43,14 @@ namespace ParticleEngine.Core
 
         /// <summary>Build frame 0 from the settings. Default seed is fixed, so identical inputs reproduce
         /// identical runs (spec 7.10).</summary>
-        public void Initialize(InitSettings init, MoveSettings move, TrailDataSettings? trail, ulong seed = 0x9E3779B97F4A7C15UL)
+        public void Initialize(InitSettings init, MoveSettings move, TrailDataSettings? trail,
+            ulong seed = 0x9E3779B97F4A7C15UL, BehaviorData? behaviors = null)
         {
             _init = init ?? throw new ArgumentNullException(nameof(init));
             _move = move ?? throw new ArgumentNullException(nameof(move));
             _trail = trail;
             _seed = seed;
+            Behaviors = behaviors;
             _rng = new Pcg32(seed);
 
             _dimension = init.Dimension == 0 ? 0 : 1;
@@ -69,27 +78,36 @@ namespace ParticleEngine.Core
         public void Reset()
         {
             if (_init != null && _move != null)
-                Initialize(_init, _move, _trail, _seed);
+                Initialize(_init, _move, _trail, _seed, Behaviors);
         }
 
-        /// <summary>Advance exactly one frame.</summary>
+        /// <summary>Advance exactly one frame. Reads only the front buffers, so the per-particle update
+        /// is order-independent (spec 7.1).</summary>
         public void Step()
         {
             int n = _state.Count;
             if (n == 0) return;
 
             double maxSpeed = _move!.MaxSpeed;
+            double maxForce = _move.MaxForce;
             double vm = _move.VelocityMultiplier;
+
+            PrepareBehaviors();
 
             for (int i = 0; i < n; i++)
             {
-                double vx = _state.Vx[i], vy = _state.Vy[i], vz = _state.Vz[i];
+                // Steering acceleration from the behaviour/force stack (spec 7.1), clamped to Max Force.
+                double ax = 0, ay = 0, az = 0;
+                AccumulateSteering(i, maxSpeed, maxForce, ref ax, ref ay, ref az);
+                VectorMath.ClampLength(ref ax, ref ay, ref az, maxForce);
 
-                // No behaviours in M2 (acc = 0). Clamp to Max Speed. VERIFY(P1): whether VM scales
-                // velocity or displacement — interim: displacement.
+                double vx = _state.Vx[i] + ax;
+                double vy = _state.Vy[i] + ay;
+                double vz = _state.Vz[i] + az;
                 VectorMath.ClampLength(ref vx, ref vy, ref vz, maxSpeed);
                 if (_dimension == 0) vz = 0.0;
 
+                // VERIFY(P1): whether VM scales velocity or displacement — interim: displacement.
                 double px = _state.Px[i] + vx * vm;
                 double py = _state.Py[i] + vy * vm;
                 double pz = _dimension == 0 ? _state.Pz[i] : _state.Pz[i] + vz * vm;
@@ -107,6 +125,150 @@ namespace ParticleEngine.Core
             if (_storeTrails && Frame % _trailStep == 0)
                 for (int i = 0; i < _state.Count; i++)
                     _trails.Push(i, _state.Px[i], _state.Py[i], _state.Pz[i]);
+        }
+
+        // ---- behaviours (spec 7.1-7.4) ----
+
+        /// <summary>Per-frame setup: build the neighbour grid once if the stack contains Flocking.</summary>
+        private void PrepareBehaviors()
+        {
+            _needGrid = false;
+            if (Behaviors == null) return;
+
+            double maxSearch = 0;
+            foreach (BehaviorSpec spec in Behaviors.Stack)
+                if (spec is FlockingSpec f) { _needGrid = true; if (f.SearchRadius > maxSearch) maxSearch = f.SearchRadius; }
+
+            if (_needGrid)
+                _grid.Build(_state.Px, _state.Py, _state.Pz, _state.Count, maxSearch > 1e-9 ? maxSearch : 1.0, _dimension == 0);
+        }
+
+        private void AccumulateSteering(int i, double maxSpeed, double maxForce,
+            ref double ax, ref double ay, ref double az)
+        {
+            if (Behaviors == null) return;
+            foreach (BehaviorSpec spec in Behaviors.Stack)
+            {
+                if (spec is FlockingSpec flock) AddFlocking(i, flock, maxSpeed, maxForce, ref ax, ref ay, ref az);
+                else if (spec is ForceSpec force) AddForce(i, force, ref ax, ref ay, ref az);
+                // StigmergySpec / PathTrackingSpec / MeshCrawlSpec / BundlingSpec: later milestones.
+            }
+        }
+
+        /// <summary>Reynolds flocking (spec 7.2): separation, alignment, cohesion over neighbours in the
+        /// search radius and inside the view cone. VERIFY(P4): View Angle full vs half field of view.</summary>
+        private void AddFlocking(int i, FlockingSpec f, double maxSpeed, double maxForce,
+            ref double ax, ref double ay, ref double az)
+        {
+            double pix = _state.Px[i], piy = _state.Py[i], piz = _state.Pz[i];
+            double vix = _state.Vx[i], viy = _state.Vy[i], viz = _state.Vz[i];
+
+            double sr2 = f.SearchRadius * f.SearchRadius;
+            double cosHalf = Math.Cos(f.ViewAngle * 0.5 * Math.PI / 180.0); // precomputed per particle, not per neighbour
+            double viLen = Math.Sqrt(vix * vix + viy * viy + viz * viz);
+            bool hasVel = viLen > 1e-12;
+
+            double sepX = 0, sepY = 0, sepZ = 0;
+            double aliX = 0, aliY = 0, aliZ = 0;
+            double cohX = 0, cohY = 0, cohZ = 0;
+            int count = 0;
+
+            _grid.CellCoords(pix, piy, piz, out int cx, out int cy, out int cz);
+            int zlo = _dimension == 0 ? cz : cz - 1;
+            int zhi = _dimension == 0 ? cz : cz + 1;
+
+            for (int gz = zlo; gz <= zhi; gz++)
+                for (int gy = cy - 1; gy <= cy + 1; gy++)
+                    for (int gx = cx - 1; gx <= cx + 1; gx++)
+                    {
+                        int c = _grid.CellIndexOf(gx, gy, gz);
+                        if (c < 0) continue;
+                        int start = _grid.CellStart[c], end = _grid.CellStart[c + 1];
+                        for (int k = start; k < end; k++)
+                        {
+                            int j = _grid.Items[k];
+                            if (j == i) continue;
+
+                            double dx = _state.Px[j] - pix, dy = _state.Py[j] - piy, dz = _state.Pz[j] - piz;
+                            double d2 = dx * dx + dy * dy + dz * dz;
+                            if (d2 >= sr2 || d2 <= 0) continue; // squared compare; sqrt only for survivors
+
+                            if (hasVel)
+                            {
+                                double d = Math.Sqrt(d2);
+                                double dot = vix * dx + viy * dy + viz * dz;
+                                if (dot < cosHalf * viLen * d) continue; // outside the view cone
+                            }
+
+                            sepX -= dx / d2; sepY -= dy / d2; sepZ -= dz / d2; // away from neighbour, weighted 1/d^2
+                            aliX += _state.Vx[j]; aliY += _state.Vy[j]; aliZ += _state.Vz[j];
+                            cohX += _state.Px[j]; cohY += _state.Py[j]; cohZ += _state.Pz[j];
+                            count++;
+                        }
+                    }
+
+            if (count == 0) return;
+            double inv = 1.0 / count;
+
+            // Separation: steer along the averaged away-vector.
+            Steer(sepX * inv, sepY * inv, sepZ * inv, vix, viy, viz, maxSpeed, maxForce,
+                out double ssx, out double ssy, out double ssz);
+            // Alignment: steer toward the average neighbour velocity.
+            Steer(aliX * inv, aliY * inv, aliZ * inv, vix, viy, viz, maxSpeed, maxForce,
+                out double sax, out double say, out double saz);
+            // Cohesion: seek the average neighbour position.
+            Steer(cohX * inv - pix, cohY * inv - piy, cohZ * inv - piz, vix, viy, viz, maxSpeed, maxForce,
+                out double scx, out double scy, out double scz);
+
+            ax += f.SeparationValue * ssx + f.AlignValue * sax + f.CohesionValue * scx;
+            ay += f.SeparationValue * ssy + f.AlignValue * say + f.CohesionValue * scy;
+            az += f.SeparationValue * ssz + f.AlignValue * saz + f.CohesionValue * scz;
+        }
+
+        /// <summary>Attraction/Repulsion toward/away from targets within a threshold (spec 6.4, VERIFY P2/P3):
+        /// magnitude min(Value·(1 − d/threshold), Max); zero outside the threshold.</summary>
+        private void AddForce(int i, ForceSpec force, ref double ax, ref double ay, ref double az)
+        {
+            double[] targets = force.Targets;
+            int nt = targets.Length / 3;
+            if (nt == 0) return;
+
+            double pix = _state.Px[i], piy = _state.Py[i], piz = _state.Pz[i];
+            double sign = force.Repel ? -1.0 : 1.0;
+
+            for (int t = 0; t < nt; t++)
+            {
+                double dx = targets[t * 3] - pix, dy = targets[t * 3 + 1] - piy, dz = targets[t * 3 + 2] - piz;
+                double d2 = dx * dx + dy * dy + dz * dz;
+                if (d2 <= 0) continue;
+
+                double threshold = ThresholdFor(force.Thresholds, t);
+                if (d2 >= threshold * threshold) continue;
+
+                double d = Math.Sqrt(d2);
+                double mag = force.Value * (1.0 - d / threshold);
+                if (mag > force.Max) mag = force.Max;
+                if (mag <= 0) continue;
+
+                double s = sign * mag / d;
+                ax += dx * s; ay += dy * s; az += dz * s;
+            }
+        }
+
+        private static double ThresholdFor(double[] thresholds, int index)
+        {
+            if (thresholds == null || thresholds.Length == 0) return 10.0; // spec fallback
+            if (thresholds.Length == 1) return thresholds[0];               // one value applies to all
+            return thresholds[index < thresholds.Length ? index : thresholds.Length - 1];
+        }
+
+        /// <summary>Reynolds steer: setLength(target, MaxSpeed) − velocity, clamped to Max Force (spec 7.2).</summary>
+        private static void Steer(double tx, double ty, double tz, double vx, double vy, double vz,
+            double maxSpeed, double maxForce, out double sx, out double sy, out double sz)
+        {
+            VectorMath.SetLength(ref tx, ref ty, ref tz, maxSpeed);
+            sx = tx - vx; sy = ty - vy; sz = tz - vz;
+            VectorMath.ClampLength(ref sx, ref sy, ref sz, maxForce);
         }
 
         // ---- boundary (spec 7.6) ----
