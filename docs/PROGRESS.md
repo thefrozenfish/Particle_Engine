@@ -6,7 +6,9 @@ Update this file at the end of every working session. It is the single source of
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M3 implemented to interim rules (Core + GH build/tests green). M2 verified running in Rhino. Exit pending for both: probes (M2 P1/P8/P11/P12/P13; M3 P2/P3/P4) and a Rhino test of flocking/forces.
+**Active milestone:** M3 implemented to interim rules (Core + GH build/tests green). M2 verified running in Rhino.
+
+**Validation plan (owner, 2026-11-01):** Culebra probes (P1–P9) and benchmarks are **deferred to the end** — build the milestones to interim rules, marking `VERIFY(Pn)`, then validate and fix in one pass (before M7/M8). Milestones are not blocked on probes meanwhile. Remind the owner before finalizing.
 
 ## 1. Milestones
 
