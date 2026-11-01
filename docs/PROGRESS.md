@@ -18,7 +18,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M1 | 20-component port-parity scaffold + manifest test | done | Win: build + conformance (vs real Culebra dump); Rhino 8 Win modern .NET shows all 20 components in the 6 subcategories. Mac not verified. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | doing | Win: Core+GH build + 48 Core tests green. Interim rules (VERIFY P1/P8/P11/P12/P13). Rhino run + probes pending. | [M2 report](#m2--core--grasshopper-interim--2026-10-31) |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | doing | Win: Core+GH build + 64 Core tests green (grid vs brute-force; flocking/forces). Interim VERIFY P2/P3/P4. Rhino run + probes pending. | [M3 report](#m3--spatial-grid--flocking--forces-interim--2026-11-01) |
-| M4 | Stigmergy, Multi Path Tracking I/II, Mesh Crawl I/II, children | todo | | |
+| M4 | Stigmergy, Multi Path Tracking, Mesh Crawl (II variants + children dropped per owner) | todo | | |
 | M5 | Creeper_ZombieEngine (background task, cancellation) | todo | | |
 | M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | todo | | |
 | M7 | Performance pass, zero-allocation proof, review checklist report | todo | | |
@@ -98,6 +98,7 @@ Benchmark results (median / p95 ms per step; bytes allocated per step):
 | 2026-10-31 | Add build-only NuGet `Microsoft.NETFramework.ReferenceAssemblies` (PrivateAssets=all) so net48 builds without Visual Studio. No runtime dependency. | Owner-approved |
 | 2026-10-31 | Pin RhinoCommon/Grasshopper to 7.38 (net48) and 8.36 (net7.0) for reproducible CI. | Claude |
 | 2026-10-31 | Owner runs Culebra on **Rhino 8**; port dump will be done there, not Rhino 7. Rhino 8 is already the primary target; Rhino 7 stays best-effort via the net48 build (no code dropped). | Owner |
+| 2026-11-01 | Dropped **Mesh Crawl II** and **Multi Path Tracking II** (and child spawning). Scope now **18 components**. Reverses interpretation calls I-1/I-2; probe P10 dropped. | Owner |
 
 ## 7. Milestone reports
 

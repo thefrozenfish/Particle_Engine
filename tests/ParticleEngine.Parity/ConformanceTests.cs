@@ -34,9 +34,10 @@ namespace ParticleEngine.Parity
         private static readonly Dictionary<string, DumpComponent> Dump = LoadDump();
 
         [Fact]
-        public void Exactly20ComponentsRegistered()
+        public void Exactly18ComponentsRegistered()
         {
-            Assert.Equal(20, Manifest.Count);
+            // 18 = original 20 minus Mesh Crawl II and Multi Path Tracking II (owner, 2026-11-01).
+            Assert.Equal(18, Manifest.Count);
         }
 
         [Fact]

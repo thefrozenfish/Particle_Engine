@@ -19,9 +19,10 @@ namespace ParticleEngine.Tests
         };
 
         [Fact]
-        public void HasExactly20Components()
+        public void HasExactly18Components()
         {
-            Assert.Equal(20, All.Count);
+            // 20 minus Mesh Crawl II and Multi Path Tracking II (owner, 2026-11-01).
+            Assert.Equal(18, All.Count);
         }
 
         [Fact]

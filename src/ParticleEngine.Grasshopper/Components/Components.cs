@@ -18,19 +18,9 @@ namespace ParticleEngine.Grasshopper.Components
         public MultiPathTrackingComponent() : base(ComponentCatalog.ByKey("MultiPathTracking")) { }
     }
 
-    public sealed class MultiPathTrackingIIComponent : ParticleComponentBase
-    {
-        public MultiPathTrackingIIComponent() : base(ComponentCatalog.ByKey("MultiPathTrackingII")) { }
-    }
-
     public sealed class MeshCrawlComponent : ParticleComponentBase
     {
         public MeshCrawlComponent() : base(ComponentCatalog.ByKey("MeshCrawl")) { }
-    }
-
-    public sealed class MeshCrawlIIComponent : ParticleComponentBase
-    {
-        public MeshCrawlIIComponent() : base(ComponentCatalog.ByKey("MeshCrawlII")) { }
     }
 
     // ----- 04 | Forces (Attraction/Repulsion have real behaviour in ForceComponents.cs; Bundling is M6) -----

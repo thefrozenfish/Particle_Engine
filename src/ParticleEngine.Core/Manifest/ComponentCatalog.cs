@@ -139,20 +139,8 @@ namespace ParticleEngine.Core.Manifest
                 },
                 new[] { Out("Tracking Behavior", "TB", PortKind.Generic, PortAccess.Item, "Path-tracking behaviour for the Controller.") }),
 
-            new ComponentSpec(
-                "MultiPathTrackingII", "Multi Path Tracking II", "TT",
-                "Path following that can also spawn child creepers.",
-                SubBehaviors, G("a7c3e100-0000-4a00-8b00-000000000009"),
-                new[]
-                {
-                    In("Polylines", "P", PortKind.Curve, PortAccess.List, null, "Paths to follow."),
-                    In("Polyline Threshold", "PT", PortKind.Number, PortAccess.Item, "500", "Distance within which a path is seen."),
-                    In("Projection Distance", "PD", PortKind.Number, PortAccess.Item, "50", "Look-ahead distance."),
-                    In("Polyline Radius", "PR", PortKind.Number, PortAccess.Item, "15", "Path corridor radius."),
-                    In("Trigger Spawn", "TS", PortKind.Boolean, PortAccess.Item, "True", "Allow creepers to spawn children."),
-                    In("Max Children", "MC", PortKind.Integer, PortAccess.Item, "2", "Maximum children per creeper."),
-                },
-                new[] { Out("Tracking Behavior", "TB", PortKind.Generic, PortAccess.Item, "Path-tracking behaviour for the Controller.") }),
+            // Multi Path Tracking II removed per owner (2026-11-01): only the single-path/no-children
+            // version is kept; see BUILD_SPEC §17 (reverses interpretation call I-1).
 
             new ComponentSpec(
                 "MeshCrawl", "Mesh Crawl", "MC",
@@ -168,20 +156,8 @@ namespace ParticleEngine.Core.Manifest
                 },
                 new[] { Out("Mesh Crawling Behavior", "MCB", PortKind.Generic, PortAccess.Item, "Mesh-crawl behaviour for the Controller.") }),
 
-            new ComponentSpec(
-                "MeshCrawlII", "Mesh Crawl II", "MC",
-                "Mesh crawling that can also spawn child creepers.",
-                SubBehaviors, G("a7c3e100-0000-4a00-8b00-00000000000b"),
-                new[]
-                {
-                    In("Mesh", "M", PortKind.Mesh, PortAccess.Item, null, "Mesh to crawl on."),
-                    In("Mesh Threshold", "MT", PortKind.Number, PortAccess.Item, "1.5", "Distance before steering back to the mesh."),
-                    In("Mesh Projection Distance", "MPD", PortKind.Number, PortAccess.Item, "2", "Look-ahead distance before the closest-point lookup."),
-                    In("Multiplier", "M", PortKind.Number, PortAccess.Item, "1.5", "Mesh-crawl steering multiplier."),
-                    In("Trigger Spawn", "TS", PortKind.Boolean, PortAccess.Item, "True", "Allow creepers to spawn children."),
-                    In("Max Children", "MC", PortKind.Integer, PortAccess.Item, "2", "Maximum children per creeper."),
-                },
-                new[] { Out("Mesh Crawling Behavior", "MCB", PortKind.Generic, PortAccess.Item, "Mesh-crawl behaviour for the Controller.") }),
+            // Mesh Crawl II removed per owner (2026-11-01): only the no-children version is kept;
+            // see BUILD_SPEC §17 (reverses interpretation call I-2).
 
             // ---------------- 04 | Forces ----------------
             new ComponentSpec(
