@@ -2,11 +2,11 @@
 
 Update this file at the end of every working session. It is the single source of current state. The spec (`BUILD_SPEC.md`) says what to build; this says where we are.
 
-**Last updated:** 2026-10-31
+**Last updated:** 2026-11-01
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M4 implemented to interim rules (Stigmergy, Multi Path Tracking, Mesh Crawl; Core + GH green). M2/M3 verified in Rhino; M4 not yet Rhino-tested. Remaining build: M5 (Creeper_ZombieEngine), M6 (Bundling).
+**Active milestone:** M6 implemented to interim rules (Bundling + Bundling_Engine + Bundling_ZombieEngine; Core + GH green). All 18 components now carry real behaviour. M2/M3 verified in Rhino; **M4, M5 and M6 not yet Rhino-tested** (a batch awaits the owner). Build sequence complete through M6; remaining: M7 (performance/zero-alloc pass + deferred probe validation) and M8 (icons, Yak packaging).
 
 **Validation plan (owner, 2026-11-01):** Culebra probes (P1–P9) and benchmarks are **deferred to the end** — build the milestones to interim rules, marking `VERIFY(Pn)`, then validate and fix in one pass (before M7/M8). Milestones are not blocked on probes meanwhile. Remind the owner before finalizing.
 
@@ -21,8 +21,8 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | doing | Win: Core+GH build + 48 Core tests green. Interim rules (VERIFY P1/P8/P11/P12/P13). Rhino run + probes pending. | [M2 report](#m2--core--grasshopper-interim--2026-10-31) |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | doing | Win: Core+GH build + 64 Core tests green (grid vs brute-force; flocking/forces). Interim VERIFY P2/P3/P4. Rhino run + probes pending. | [M3 report](#m3--spatial-grid--flocking--forces-interim--2026-11-01) |
 | M4 | Stigmergy, Multi Path Tracking, Mesh Crawl (II variants + children dropped per owner) | doing | Win: Core+GH build + 71 Core tests green (stigmergy/path/mesh-crawl). Interim VERIFY P5/P6/P7. Rhino run + probes pending. | [M4 report](#m4--stigmergy-path-tracking-mesh-crawl-interim--2026-11-01) |
-| M5 | Creeper_ZombieEngine (background task, cancellation) | todo | | |
-| M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | todo | | |
+| M5 | Creeper_ZombieEngine (run N iterations in one go) | doing | Win: Core+GH build + 72 Core tests green (Zombie == repeated steps). Synchronous; background-task refinement deferred. Rhino run pending. | [M5 report](#m5--creeper_zombieengine-synchronous--2026-11-01) |
+| M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | doing | Win: Core+GH build + 78 Core tests green (convergence, threshold cutoff, weld pins, determinism). Interim VERIFY P9. Rhino run + probe pending. | [M6 report](#m6--bundling--bundling-engines-interim--2026-11-01) |
 | M7 | Performance pass, zero-allocation proof, review checklist report | todo | | |
 | M8 | Icons, Yak packages (rh8-any, rh7-any), install docs, examples | todo | | |
 
@@ -353,6 +353,79 @@ and path choice), P7 (mesh snap vs threshold; velocity flatten; MPD scaling). In
 
 **Next:** owner runs stigmergy/path/mesh-crawl in Rhino, and probes P5/P6/P7. Then M5 (Zombie engine)
 and M6 (Bundling).
+
+### M5 — Creeper_ZombieEngine (synchronous) — 2026-11-01
+
+**Scope.** Creeper_ZombieEngine: runs the whole simulation for a fixed number of Iterations in one go
+(no Timer), on the solution where Run goes false → true, then outputs the final state; while Run stays
+unchanged it returns the cached result without recomputing (spec 6.5). Shares all output/draw machinery
+with Creeper_Engine.
+
+**Files created/changed:**
+- GH: `Components/EngineComponentBase.cs` (NEW) — extracted the shared engine machinery (`Sim`,
+  `DisplayMode`, `Seed`, `EmitOutputs`, Graphic-mode draw buffers, `DrawViewportWires`, `ClippingBox`,
+  `ClearEngineState`, `RemovedFromDocument`). `CreeperEngineComponent` rewritten as a thin subclass
+  (Timer step + `DA.Iteration` guard + Reset). `CreeperZombieEngineComponent` (NEW) — run-N on the
+  rising edge of Run, cache while Run unchanged. Zombie scaffold removed from `Components.cs`.
+- Tests: `M4Tests.BehaviorRunIsDeterministic_ZombieEqualsRepeatedSteps` — N steps in one go equal N
+  one-per-solution steps (the Zombie-vs-Timer equivalence that makes the cached run trustworthy).
+
+**Tests run:** Windows 11 / net8.0 / **72 core + 5 conformance / pass**; net48 / 72 core / pass.
+**Builds:** solution **0 warnings, 0 errors**. 18 components.
+
+**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino — NOT run** (Zombie engine untested in
+the host).
+
+**Review checklist (spec 9.4):** no new Core step code — reuses `CreeperSimulation`. The engine runs on
+the solve thread (synchronous), so a 10k-agent × 1k-iteration run blocks the UI for the duration.
+
+**Deviations / notes:** M5 is **synchronous**, not the spec's background-task + cancellation design. That
+refinement (run off-thread, report progress, cancel on input change) is deferred as a follow-up; the
+determinism test guarantees the async version must produce the same result. No new `[VERIFY]` items.
+
+**Next:** owner runs the Zombie engine in Rhino (set Iterations, toggle Run) alongside M4. Then M6.
+
+### M6 — Bundling + bundling engines (interim) — 2026-11-01
+
+**Scope.** Curve-network self-organisation ("bundling", spec 7.11): the Bundling settings component,
+the Timer-driven Bundling_Engine (one cycle per solution), and Bundling_ZombieEngine (run N cycles in
+one go; no Culebra equivalent, mirrors Creeper_ZombieEngine). Built to interim rules; the bundling
+specifics are tagged `VERIFY(P9)`.
+
+**Files created/changed:**
+- Core: `BundlingSimulation.cs` (NEW) — curves sampled to flat point arrays (CSR per-curve ranges);
+  each cycle moves every non-pinned point toward the centroid of nearby points on **other** curves by
+  at most Ratio, found through the existing `UniformGrid`; double-buffered; weld pins the first/last
+  WeldCount points of each curve. `ToCurves()` regroups points per curve for geometry rebuild.
+- GH: `Components/BundlingEngineBase.cs` (NEW) — shared bundling machinery: read the Bundling behaviour
+  (from a Controller stack or supplied directly), sample the input curves (resampled to PointCount when
+  Rebuild is on, else the curve's own polyline), rebuild the current points into polylines for the
+  Geometry output, and draw them in Graphic mode. `BundlingEngineComponent` (Timer) and
+  `BundlingZombieEngineComponent` (run-N) as thin subclasses. `BundlingComponent` gained its
+  `SolveInstance` (emits `BundlingSpec`); `Components.cs` now holds only that one component.
+- Tests: `M6Tests.cs` — nearby curves converge; curves beyond Threshold do not move; welded endpoints
+  stay pinned while the free interior moves; bundling is deterministic; `ToCurves` preserves curve and
+  point counts; Reset returns to the input curves.
+
+**Tests run:** Windows 11 / net8.0 / **78 core + 5 conformance / pass**; net48 / 78 core / pass.
+**Builds:** solution **0 warnings, 0 errors**. 18 components.
+
+**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino — NOT run** (bundling untested in the
+host; the engines call `Curve.DivideByCount` / build `PolylineCurve`s on the solve thread).
+
+**Review checklist (spec 9.4):** `BundlingSimulation.Step()` allocates nothing — the grid reuses its
+buffers, the neighbour loop uses locals and squared compares (sqrt only once per moved point, no trig),
+and positions are double-buffered. `ToCurves()` and the GH curve rebuild allocate, but once per solution
+at the GH boundary, not inside the cycle loop. Curve sampling happens only at Initialize/Reset.
+
+**New / open `[VERIFY]`:** P9 — whether Ratio is an absolute move distance or a fraction of the gap,
+exactly how Weld pins/merges end points, and the output curve type (polyline vs degree-3). Interim:
+Ratio is an absolute cap (`move = min(Ratio, gap)`); Weld pins the first/last WeldCount points per curve
+(no merging); output is a `PolylineCurve` through the points.
+
+**Next:** owner runs bundling in Rhino (Bundling → Bundling_Engine with a Timer, and Bundling_ZombieEngine
+with Run), and probe P9 against Culebra. Then the deferred validation pass (all probes + benchmarks)
+before M7/M8.
 
 
 ## Ribbon and installer repair — final handover, 2026-10-31

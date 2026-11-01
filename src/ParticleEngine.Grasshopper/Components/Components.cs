@@ -1,28 +1,32 @@
+using Grasshopper.Kernel;
 using ParticleEngine.Core.Manifest;
+using ParticleEngine.Core.Settings;
+using ParticleEngine.Grasshopper.Goo;
 
 namespace ParticleEngine.Grasshopper.Components
 {
-    // Components still at the M1 port-parity scaffold (no SolveInstance logic yet). They gain behaviour
-    // in later milestones: behaviours/forces in M3-M4, the Zombie/Bundling engines in M5-M6.
-    // The M2 components (spawn, init, move, trail, visual, Controller, Creeper_Engine) have real logic
-    // and live in their own files.
+    // All components now carry real behaviour. The bundling engines live in their own files
+    // (BundlingEngineComponent.cs, BundlingZombieEngineComponent.cs); only the Bundling settings
+    // component remains here.
 
-    // 03 | Behaviors all have real behaviour now (BehaviorComponents.cs, TrackingComponents.cs).
-
-    // ----- 04 | Forces (Attraction/Repulsion have real behaviour in ForceComponents.cs; Bundling is M6) -----
+    /// <summary>Bundling — settings for curve-network self-organisation, consumed by a bundling engine.</summary>
     public sealed class BundlingComponent : ParticleComponentBase
     {
         public BundlingComponent() : base(ComponentCatalog.ByKey("Bundling")) { }
-    }
 
-    // ----- 05 | Engine (Creeper engines implemented; Bundling engines are M6) -----
-    public sealed class BundlingEngineComponent : ParticleComponentBase
-    {
-        public BundlingEngineComponent() : base(ComponentCatalog.ByKey("BundlingEngine")) { }
-    }
+        protected override void SolveInstance(IGH_DataAccess DA)
+        {
+            double threshold = 100, ratio = 0.5;
+            bool rebuild = true;
+            int pointCount = 40, weldCount = 2;
+            GhInput.GetDouble(DA, 0, ref threshold);
+            GhInput.GetDouble(DA, 1, ref ratio);
+            GhInput.GetBool(DA, 2, ref rebuild);
+            GhInput.GetInt(DA, 3, ref pointCount);
+            GhInput.GetInt(DA, 4, ref weldCount);
 
-    public sealed class BundlingZombieEngineComponent : ParticleComponentBase
-    {
-        public BundlingZombieEngineComponent() : base(ComponentCatalog.ByKey("BundlingZombieEngine")) { }
+            DA.SetData(0, new ParticleGoo<BundlingSpec>(
+                new BundlingSpec(threshold, ratio, rebuild, pointCount, weldCount)));
+        }
     }
 }
