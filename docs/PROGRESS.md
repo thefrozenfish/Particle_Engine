@@ -67,6 +67,7 @@ Record per milestone. `OK` / `FAIL` / `-` (not run). Include Rhino build number 
 | | Rhino 8 Win, .NET Framework | | | | | | |
 | M0 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | net7.0 .gha loaded into process (AppDomain shows `ParticleEngine`). No tab / no Libraries entry — expected, 0 components. |
 | M1 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | n/a | All 20 components visible in the six subcategories. Needed two fixes: `EnableDynamicLoading` (resolve Core.dll) + ctor NRE fix (Spec resolved from runtime type). |
+| M2 | Rhino 8 Win, modern .NET | 8 (modern .NET) | .NET 10.0.11 | OK | OK | OK | Timer-driven run: creepers spawn/move/bounce; Geometry Trails point-tree → PolyLine = agent curves. Graphic mode, Reset, save/reopen not yet confirmed. |
 | | Rhino 8 Mac, Apple Silicon | | | | | | |
 | | Rhino 8 Mac, Intel | | | | | | |
 | | Rhino 7 Win | | | | | | |
@@ -259,9 +260,13 @@ tagged `VERIFY(Pn)` and listed in Section 3.
 
 **Builds:** `dotnet build ParticleEngine.sln -c Release` → **0 warnings, 0 errors**.
 
-**Hosts exercised:** Windows 11 — **compiles + Core tests pass**. **Rhino — not run yet**: the
-Timer-driven engine, Graphic/Geometry output and drawing are untested in Rhino (owner acceptance
-pending). The GH simulation/engine logic only exercises at Rhino runtime, like the M1 registration bug.
+**Hosts exercised:** Windows 11 — compiles + Core tests pass. **Rhino 8 Win (modern .NET): RUN VERIFIED
+(owner, 2026-11-01)** — Timer-driven creepers spawn, move and bounce; Geometry-mode Trails point-tree
+into a PolyLine gives one agent curve per creeper. Four GH-runtime bugs were fixed during this run:
+Init Settings' Spawn Settings is a list-access input (was read as item); generic inputs must be
+optional (reserved Color Data was blocking); and Trails now outputs a point tree, not degenerate
+polylines. Still to confirm in Rhino: Graphic-mode viewport drawing, Reset, and save/reopen. Mac
+untested.
 
 **Review checklist (spec 9.4):** step loop uses `for` over SoA arrays, no LINQ/lambdas, squared compares
 in `VectorMath`, ring buffers (no `RemoveAt(0)`), own PRNG, no statics for state (engine state is
