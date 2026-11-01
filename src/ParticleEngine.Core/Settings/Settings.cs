@@ -143,49 +143,41 @@ namespace ParticleEngine.Core.Settings
         public override string SettingsTypeName => "Stigmergy Behavior";
     }
 
-    /// <summary>Multi Path Tracking (I and II). Polylines are flat x,y,z triples per path.</summary>
+    /// <summary>Multi Path Tracking. Polylines are flat x,y,z triples per path. (II/children dropped.)</summary>
     public sealed class PathTrackingSpec : BehaviorSpec
     {
-        public PathTrackingSpec(double[][] polylines, double threshold, double projectionDistance,
-            double radius, bool triggerSpawn, int maxChildren)
+        public PathTrackingSpec(double[][] polylines, double threshold, double projectionDistance, double radius)
         {
             Polylines = polylines ?? Array.Empty<double[]>();
             Threshold = threshold;
             ProjectionDistance = projectionDistance;
             Radius = radius;
-            TriggerSpawn = triggerSpawn;
-            MaxChildren = maxChildren;
         }
 
         public double[][] Polylines { get; }
         public double Threshold { get; }
         public double ProjectionDistance { get; }
         public double Radius { get; }
-        public bool TriggerSpawn { get; }
-        public int MaxChildren { get; }
 
         public override string SettingsTypeName => "Tracking Behavior";
     }
 
-    /// <summary>Mesh Crawl (I and II). The mesh itself is supplied to the engine via IMeshSurface (M4);
-    /// this spec carries the scalar parameters only.</summary>
+    /// <summary>Mesh Crawl. Carries the scalar parameters and the mesh surface (as an IMeshSurface the
+    /// Grasshopper layer implements, so Core stays Rhino-free). (II/children dropped.)</summary>
     public sealed class MeshCrawlSpec : BehaviorSpec
     {
-        public MeshCrawlSpec(double meshThreshold, double meshProjectionDistance, double multiplier,
-            bool triggerSpawn, int maxChildren)
+        public MeshCrawlSpec(IMeshSurface? surface, double meshThreshold, double meshProjectionDistance, double multiplier)
         {
+            Surface = surface;
             MeshThreshold = meshThreshold;
             MeshProjectionDistance = meshProjectionDistance;
             Multiplier = multiplier;
-            TriggerSpawn = triggerSpawn;
-            MaxChildren = maxChildren;
         }
 
+        public IMeshSurface? Surface { get; }
         public double MeshThreshold { get; }
         public double MeshProjectionDistance { get; }
         public double Multiplier { get; }
-        public bool TriggerSpawn { get; }
-        public int MaxChildren { get; }
 
         public override string SettingsTypeName => "Mesh Crawling Behavior";
     }

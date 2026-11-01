@@ -43,6 +43,21 @@ namespace ParticleEngine.Core
         public int[] ConnectivityI => _connI;
         public int[] ConnectivityJ => _connJ;
 
+        // Trail-point grid for Stigmergy (spec 7.3): all creepers' trail points, flattened each frame
+        // with their owner, so an agent can steer by *other* creepers' trails.
+        private readonly UniformGrid _trailGrid = new UniformGrid();
+        private double[] _tpx = Array.Empty<double>();
+        private double[] _tpy = Array.Empty<double>();
+        private double[] _tpz = Array.Empty<double>();
+        private int[] _tpOwner = Array.Empty<int>();
+        private int _tpCount;
+
+        private bool _hasStigmergy;
+        private bool _hasPath;
+        private bool _hasMeshCrawl;
+        private MeshCrawlSpec? _meshSpec;
+        private bool _trailsActive; // trails stored when Trail Data is on OR a Stigmergy behaviour is present (spec 7.8)
+
         /// <summary>Behaviour/force stack from the Controller. May change between frames (spec 4.4);
         /// the engine sets it each solve. Null or empty = straight-line motion (M2).</summary>
         public BehaviorData? Behaviors { get; set; }
@@ -51,7 +66,7 @@ namespace ParticleEngine.Core
         public int Count => _state.Count;
         public ParticleState State => _state;
         public TrailBuffer Trails => _trails;
-        public bool TrailsStored => _storeTrails;
+        public bool TrailsStored => _trailsActive;
 
         /// <summary>Build frame 0 from the settings. Default seed is fixed, so identical inputs reproduce
         /// identical runs (spec 7.10).</summary>
@@ -71,15 +86,15 @@ namespace ParticleEngine.Core
             SpawnSettings sp = init.Spawn ?? throw new InvalidOperationException("Init Settings has no spawn settings.");
             SortBounds(sp);
 
-            // Trail storage is independent of visibility; in M2 it runs only when Trail = true
-            // (no Stigmergy yet). VERIFY(P5): storage also runs when a Stigmergy behaviour is present.
+            // Trail storage runs when Trail = true OR a Stigmergy behaviour is present (spec 7.8).
             _storeTrails = trail != null && trail.Trail;
             _trailStep = Math.Max(1, trail?.TrailStep ?? 1);
             _maxTrail = Math.Max(2, trail?.MaxTrailSize ?? 100);
+            UpdateBehaviorFlags();
 
             Spawn(sp, move);
             _trails.Reset(_state.Count, _maxTrail);
-            if (_storeTrails)
+            if (_trailsActive)
                 for (int i = 0; i < _state.Count; i++)
                     _trails.Push(i, _state.Px[i], _state.Py[i], _state.Pz[i]);
 
@@ -126,6 +141,10 @@ namespace ParticleEngine.Core
 
                 ApplyBoundary(i, ref px, ref py, ref pz, ref vx, ref vy, ref vz);
 
+                // Mesh Crawl snaps the position to the surface and flattens the velocity (spec 7.5).
+                if (_hasMeshCrawl && _meshSpec?.Surface != null)
+                    ProjectToMesh(_meshSpec, ref px, ref py, ref pz, ref vx, ref vy, ref vz);
+
                 _state.Qx[i] = px; _state.Qy[i] = py; _state.Qz[i] = pz;
                 _state.Ux[i] = vx; _state.Uy[i] = vy; _state.Uz[i] = vz;
             }
@@ -134,7 +153,7 @@ namespace ParticleEngine.Core
             Frame++;
 
             // VERIFY(P11): exactly when a trail point is stored / whether the head is included.
-            if (_storeTrails && Frame % _trailStep == 0)
+            if (_trailsActive && Frame % _trailStep == 0)
                 for (int i = 0; i < _state.Count; i++)
                     _trails.Push(i, _state.Px[i], _state.Py[i], _state.Pz[i]);
         }
@@ -147,19 +166,81 @@ namespace ParticleEngine.Core
             _needGrid = false;
             _recordConn = false;
             _connCount = 0;
+            UpdateBehaviorFlags();
             if (Behaviors == null) return;
 
-            double maxSearch = 0;
+            double maxSearch = 0, maxTrailRange = 0;
             foreach (BehaviorSpec spec in Behaviors.Stack)
+            {
                 if (spec is FlockingSpec f)
                 {
                     _needGrid = true;
                     if (f.SearchRadius > maxSearch) maxSearch = f.SearchRadius;
                     if (f.Connect) _recordConn = true;
                 }
+                else if (spec is StigmergySpec s)
+                {
+                    double r = Math.Max(s.CohesionRange, s.SeparationRange);
+                    if (r > maxTrailRange) maxTrailRange = r;
+                }
+            }
 
             if (_needGrid)
                 _grid.Build(_state.Px, _state.Py, _state.Pz, _state.Count, maxSearch > 1e-9 ? maxSearch : 1.0, _dimension == 0);
+
+            if (_hasStigmergy)
+                BuildTrailGrid(maxTrailRange > 1e-9 ? maxTrailRange : 1.0);
+        }
+
+        private void UpdateBehaviorFlags()
+        {
+            _hasStigmergy = _hasPath = _hasMeshCrawl = false;
+            _meshSpec = null;
+            if (Behaviors != null)
+                foreach (BehaviorSpec spec in Behaviors.Stack)
+                {
+                    if (spec is StigmergySpec) _hasStigmergy = true;
+                    else if (spec is PathTrackingSpec) _hasPath = true;
+                    else if (spec is MeshCrawlSpec m) { _hasMeshCrawl = true; if (_meshSpec == null) _meshSpec = m; }
+                }
+            _trailsActive = _storeTrails || _hasStigmergy;
+        }
+
+        /// <summary>Flatten every creeper's trail points (with owner) and build a grid over them (spec 7.3).</summary>
+        private void BuildTrailGrid(double cell)
+        {
+            int total = 0;
+            for (int i = 0; i < _state.Count; i++) total += _trails.Length(i);
+
+            if (_tpx.Length < total)
+            {
+                _tpx = new double[total]; _tpy = new double[total]; _tpz = new double[total];
+                _tpOwner = new int[total];
+            }
+
+            int idx = 0;
+            for (int i = 0; i < _state.Count; i++)
+                for (int k = 0; k < _trails.Length(i); k++)
+                {
+                    _trails.Get(i, k, out double x, out double y, out double z);
+                    _tpx[idx] = x; _tpy[idx] = y; _tpz[idx] = z; _tpOwner[idx] = i;
+                    idx++;
+                }
+
+            _tpCount = idx;
+            _trailGrid.Build(_tpx, _tpy, _tpz, _tpCount, cell, _dimension == 0);
+        }
+
+        private void ProjectToMesh(MeshCrawlSpec m, ref double px, ref double py, ref double pz,
+            ref double vx, ref double vy, ref double vz)
+        {
+            if (!m.Surface!.Closest(px, py, pz, 0, out double cx, out double cy, out double cz,
+                    out double nx, out double ny, out double nz))
+                return;
+
+            px = cx; py = cy; pz = cz; // snap to the surface (VERIFY P7)
+            double vdotn = vx * nx + vy * ny + vz * nz; // remove velocity along the normal
+            vx -= vdotn * nx; vy -= vdotn * ny; vz -= vdotn * nz;
         }
 
         private void AccumulateSteering(int i, double maxSpeed, double maxForce,
@@ -170,7 +251,10 @@ namespace ParticleEngine.Core
             {
                 if (spec is FlockingSpec flock) AddFlocking(i, flock, maxSpeed, maxForce, ref ax, ref ay, ref az);
                 else if (spec is ForceSpec force) AddForce(i, force, ref ax, ref ay, ref az);
-                // StigmergySpec / PathTrackingSpec / MeshCrawlSpec / BundlingSpec: later milestones.
+                else if (spec is StigmergySpec stig) AddStigmergy(i, stig, maxSpeed, maxForce, ref ax, ref ay, ref az);
+                else if (spec is PathTrackingSpec path) AddPathTracking(i, path, maxSpeed, maxForce, ref ax, ref ay, ref az);
+                else if (spec is MeshCrawlSpec mesh) AddMeshCrawl(i, mesh, maxSpeed, maxForce, ref ax, ref ay, ref az);
+                // BundlingSpec: M6.
             }
         }
 
@@ -290,6 +374,171 @@ namespace ParticleEngine.Core
             if (thresholds == null || thresholds.Length == 0) return 10.0; // spec fallback
             if (thresholds.Length == 1) return thresholds[0];               // one value applies to all
             return thresholds[index < thresholds.Length ? index : thresholds.Length - 1];
+        }
+
+        /// <summary>Stigmergy (spec 7.3): steer toward other creepers' trail points within Cohesion Range
+        /// (weight CM) and away from those within Separation Range (weight SM), inside the view cone.</summary>
+        private void AddStigmergy(int i, StigmergySpec s, double maxSpeed, double maxForce,
+            ref double ax, ref double ay, ref double az)
+        {
+            if (_tpCount == 0) return;
+
+            double pix = _state.Px[i], piy = _state.Py[i], piz = _state.Pz[i];
+            double vix = _state.Vx[i], viy = _state.Vy[i], viz = _state.Vz[i];
+
+            double cr2 = s.CohesionRange * s.CohesionRange;
+            double sr2 = s.SeparationRange * s.SeparationRange;
+            double max2 = Math.Max(cr2, sr2);
+            double cosHalf = Math.Cos(s.ViewAngle * 0.5 * Math.PI / 180.0);
+            double viLen = Math.Sqrt(vix * vix + viy * viy + viz * viz);
+            bool hasVel = viLen > 1e-12;
+
+            double cohX = 0, cohY = 0, cohZ = 0; int cohN = 0;
+            double sepX = 0, sepY = 0, sepZ = 0; int sepN = 0;
+
+            _trailGrid.CellCoords(pix, piy, piz, out int cx, out int cy, out int cz);
+            int zlo = _dimension == 0 ? cz : cz - 1;
+            int zhi = _dimension == 0 ? cz : cz + 1;
+
+            for (int gz = zlo; gz <= zhi; gz++)
+                for (int gy = cy - 1; gy <= cy + 1; gy++)
+                    for (int gx = cx - 1; gx <= cx + 1; gx++)
+                    {
+                        int c = _trailGrid.CellIndexOf(gx, gy, gz);
+                        if (c < 0) continue;
+                        for (int k = _trailGrid.CellStart[c]; k < _trailGrid.CellStart[c + 1]; k++)
+                        {
+                            int tp = _trailGrid.Items[k];
+                            if (_tpOwner[tp] == i) continue; // ignore own trail
+
+                            double dx = _tpx[tp] - pix, dy = _tpy[tp] - piy, dz = _tpz[tp] - piz;
+                            double d2 = dx * dx + dy * dy + dz * dz;
+                            if (d2 >= max2 || d2 <= 0) continue;
+
+                            if (hasVel)
+                            {
+                                double d = Math.Sqrt(d2);
+                                double dot = vix * dx + viy * dy + viz * dz;
+                                if (dot < cosHalf * viLen * d) continue;
+                            }
+
+                            if (d2 < cr2) { cohX += _tpx[tp]; cohY += _tpy[tp]; cohZ += _tpz[tp]; cohN++; }
+                            if (d2 < sr2) { sepX += _tpx[tp]; sepY += _tpy[tp]; sepZ += _tpz[tp]; sepN++; }
+                        }
+                    }
+
+            if (cohN > 0)
+            {
+                Steer(cohX / cohN - pix, cohY / cohN - piy, cohZ / cohN - piz, vix, viy, viz, maxSpeed, maxForce,
+                    out double sx, out double sy, out double sz);
+                ax += s.CohesionMag * sx; ay += s.CohesionMag * sy; az += s.CohesionMag * sz;
+            }
+            if (sepN > 0)
+            {
+                Steer(pix - sepX / sepN, piy - sepY / sepN, piz - sepZ / sepN, vix, viy, viz, maxSpeed, maxForce,
+                    out double sx, out double sy, out double sz);
+                ax += s.SeparationMag * sx; ay += s.SeparationMag * sy; az += s.SeparationMag * sz;
+            }
+        }
+
+        /// <summary>Multi Path Tracking (spec 7.4): steer toward the nearest path within Polyline Threshold
+        /// when outside its corridor (Polyline Radius), seeking a point ahead along the path.</summary>
+        private void AddPathTracking(int i, PathTrackingSpec p, double maxSpeed, double maxForce,
+            ref double ax, ref double ay, ref double az)
+        {
+            if (p.Polylines.Length == 0) return;
+
+            double pix = _state.Px[i], piy = _state.Py[i], piz = _state.Pz[i];
+            double vix = _state.Vx[i], viy = _state.Vy[i], viz = _state.Vz[i];
+
+            double hx = vix, hy = viy, hz = viz;
+            if (!VectorMath.TryNormalize(ref hx, ref hy, ref hz)) { hx = 1; hy = 0; hz = 0; }
+            double pfx = pix + hx * p.ProjectionDistance;
+            double pfy = piy + hy * p.ProjectionDistance;
+            double pfz = piz + hz * p.ProjectionDistance;
+
+            double bestDist = double.MaxValue;
+            double bcx = 0, bcy = 0, bcz = 0, bdx = 0, bdy = 0, bdz = 0;
+            for (int path = 0; path < p.Polylines.Length; path++)
+            {
+                if (ClosestOnPath(p.Polylines[path], pfx, pfy, pfz,
+                        out double cx, out double cy, out double cz,
+                        out double ddx, out double ddy, out double ddz, out double dist) && dist < bestDist)
+                {
+                    bestDist = dist; bcx = cx; bcy = cy; bcz = cz; bdx = ddx; bdy = ddy; bdz = ddz;
+                }
+            }
+
+            if (bestDist > p.Threshold) return; // no path in range
+            if (bestDist <= p.Radius) return;    // already inside the corridor
+
+            double tx = bcx + bdx * p.ProjectionDistance - pix;
+            double ty = bcy + bdy * p.ProjectionDistance - piy;
+            double tz = bcz + bdz * p.ProjectionDistance - piz;
+            Steer(tx, ty, tz, vix, viy, viz, maxSpeed, maxForce, out double sx, out double sy, out double sz);
+            ax += sx; ay += sy; az += sz;
+        }
+
+        /// <summary>Closest point on a flat x,y,z polyline to (px,py,pz), with the local unit direction and distance.</summary>
+        private static bool ClosestOnPath(double[] pts, double px, double py, double pz,
+            out double cx, out double cy, out double cz, out double dx, out double dy, out double dz, out double dist)
+        {
+            cx = cy = cz = 0; dx = 1; dy = 0; dz = 0; dist = 0;
+            int n = pts.Length / 3;
+            if (n == 0) { dist = double.MaxValue; return false; }
+            if (n == 1)
+            {
+                cx = pts[0]; cy = pts[1]; cz = pts[2];
+                dist = Math.Sqrt(VectorMath.DistanceSquared(px, py, pz, cx, cy, cz));
+                return true;
+            }
+
+            double bestD2 = double.MaxValue;
+            for (int s = 0; s < n - 1; s++)
+            {
+                double ax = pts[s * 3], ay = pts[s * 3 + 1], az = pts[s * 3 + 2];
+                double ex = pts[(s + 1) * 3] - ax, ey = pts[(s + 1) * 3 + 1] - ay, ez = pts[(s + 1) * 3 + 2] - az;
+                double len2 = ex * ex + ey * ey + ez * ez;
+                double t = len2 > 0 ? ((px - ax) * ex + (py - ay) * ey + (pz - az) * ez) / len2 : 0;
+                if (t < 0) t = 0; else if (t > 1) t = 1;
+                double qx = ax + ex * t, qy = ay + ey * t, qz = az + ez * t;
+                double d2 = VectorMath.DistanceSquared(px, py, pz, qx, qy, qz);
+                if (d2 < bestD2)
+                {
+                    bestD2 = d2; cx = qx; cy = qy; cz = qz;
+                    dx = ex; dy = ey; dz = ez; VectorMath.TryNormalize(ref dx, ref dy, ref dz);
+                }
+            }
+            dist = Math.Sqrt(bestD2);
+            return true;
+        }
+
+        /// <summary>Mesh Crawl (spec 7.5): seek the closest mesh point to the look-ahead position when the
+        /// agent is further than Mesh Threshold from the surface. Snap + velocity flatten happen in Step.</summary>
+        private void AddMeshCrawl(int i, MeshCrawlSpec m, double maxSpeed, double maxForce,
+            ref double ax, ref double ay, ref double az)
+        {
+            if (m.Surface == null) return;
+
+            double pix = _state.Px[i], piy = _state.Py[i], piz = _state.Pz[i];
+            double vix = _state.Vx[i], viy = _state.Vy[i], viz = _state.Vz[i];
+
+            double hx = vix, hy = viy, hz = viz;
+            if (!VectorMath.TryNormalize(ref hx, ref hy, ref hz)) { hx = 1; hy = 0; hz = 0; }
+            double ppx = pix + hx * m.MeshProjectionDistance;
+            double ppy = piy + hy * m.MeshProjectionDistance;
+            double ppz = piz + hz * m.MeshProjectionDistance;
+
+            if (!m.Surface.Closest(ppx, ppy, ppz, 0, out double cx, out double cy, out double cz,
+                    out double nx, out double ny, out double nz))
+                return;
+
+            double dist = Math.Sqrt(VectorMath.DistanceSquared(ppx, ppy, ppz, cx, cy, cz));
+            if (dist <= m.MeshThreshold) return;
+
+            Steer(cx - pix, cy - piy, cz - piz, vix, viy, viz, maxSpeed, maxForce,
+                out double sx, out double sy, out double sz);
+            ax += m.Multiplier * sx; ay += m.Multiplier * sy; az += m.Multiplier * sz;
         }
 
         /// <summary>Reynolds steer: setLength(target, MaxSpeed) − velocity, clamped to Max Force (spec 7.2).</summary>
