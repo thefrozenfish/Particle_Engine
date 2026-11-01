@@ -6,7 +6,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M3 implemented to interim rules (Core + GH build/tests green). M2 verified running in Rhino.
+**Active milestone:** M4 implemented to interim rules (Stigmergy, Multi Path Tracking, Mesh Crawl; Core + GH green). M2/M3 verified in Rhino; M4 not yet Rhino-tested. Remaining build: M5 (Creeper_ZombieEngine), M6 (Bundling).
 
 **Validation plan (owner, 2026-11-01):** Culebra probes (P1–P9) and benchmarks are **deferred to the end** — build the milestones to interim rules, marking `VERIFY(Pn)`, then validate and fix in one pass (before M7/M8). Milestones are not blocked on probes meanwhile. Remind the owner before finalizing.
 
@@ -20,7 +20,7 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M1 | 20-component port-parity scaffold + manifest test | done | Win: build + conformance (vs real Culebra dump); Rhino 8 Win modern .NET shows all 20 components in the 6 subcategories. Mac not verified. | [M1 report](#m1--port-parity-scaffold-20-components--conformance--2026-10-31) |
 | M2 | Spawn, Init, Move, Controller, Trail Data, Visual Settings, Creeper_Engine (straight motion, bounds, trails, Graphic/Geometry) | doing | Win: Core+GH build + 48 Core tests green. Interim rules (VERIFY P1/P8/P11/P12/P13). Rhino run + probes pending. | [M2 report](#m2--core--grasshopper-interim--2026-10-31) |
 | M3 | Spatial grid, Flocking, Attraction, Repulsion, Connectivity | doing | Win: Core+GH build + 64 Core tests green (grid vs brute-force; flocking/forces). Interim VERIFY P2/P3/P4. Rhino run + probes pending. | [M3 report](#m3--spatial-grid--flocking--forces-interim--2026-11-01) |
-| M4 | Stigmergy, Multi Path Tracking, Mesh Crawl (II variants + children dropped per owner) | todo | | |
+| M4 | Stigmergy, Multi Path Tracking, Mesh Crawl (II variants + children dropped per owner) | doing | Win: Core+GH build + 71 Core tests green (stigmergy/path/mesh-crawl). Interim VERIFY P5/P6/P7. Rhino run + probes pending. | [M4 report](#m4--stigmergy-path-tracking-mesh-crawl-interim--2026-11-01) |
 | M5 | Creeper_ZombieEngine (background task, cancellation) | todo | | |
 | M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | todo | | |
 | M7 | Performance pass, zero-allocation proof, review checklist report | todo | | |
@@ -321,6 +321,38 @@ View Angle full vs half; separation falloff). Interim: classic Reynolds steering
 
 **Next:** owner runs flocking/forces in Rhino, and probes P2/P3/P4 against Culebra. Then fold results
 into golden tests and the spec change log, and M3 is done.
+
+### M4 — stigmergy, path tracking, mesh crawl (interim) — 2026-11-01
+
+**Scope.** Stigmergy, Multi Path Tracking, and Mesh Crawl — built autonomously to interim rules. The
+II variants and child spawning were removed earlier today per owner (18 components; probe P10 dropped).
+Probe-dependent specifics tagged `VERIFY(P5/P6/P7)`. Not yet run in Rhino.
+
+**Files created/changed:**
+- Core: `IMeshSurface.cs`; `Settings.cs` (Path/MeshCrawl specs simplified, mesh surface added);
+  `CreeperSimulation.cs` — trail-point grid for Stigmergy, path-following, mesh seek + surface
+  projection, trail storage forced on when Stigmergy is present.
+- GH: `MeshSurface.cs` (IMeshSurface via `Mesh.ClosestMeshPoint`), `GhInput.CurveToFlat`,
+  `Components/TrackingComponents.cs` (Stigmergy / Multi Path Tracking / Mesh Crawl). `Components.cs`
+  trimmed — all `03 | Behaviors` now implemented.
+- Tests: `M4Tests.cs` (stigmergy cohesion/separation + forced storage; path steer-to-corridor /
+  in-corridor no-op; mesh snap + velocity flatten + tangential motion, via a flat-plane mock surface).
+
+**Tests run:** Windows 11 / net8.0 / **71 core + 5 conformance / pass**; net48 / 71 core / pass.
+**Builds:** solution **0 warnings, 0 errors**. 18 components.
+
+**Hosts exercised:** Windows 11 — compiles + Core tests. **Rhino — NOT run** (stigmergy/path/mesh-crawl
+untested in the host; mesh crawl especially, since it calls `Mesh.ClosestMeshPoint` on the solve thread).
+
+**Review checklist (spec 9.4):** stigmergy uses a counting-sort trail grid (flattened each frame),
+squared compares + cos-cone (sqrt for survivors); path tracking is segment projection without trig;
+mesh crawl does one closest-point call per agent per frame. No LINQ in the loops; buffers reused.
+
+**New / open `[VERIFY]`:** P5 (stigmergy ranges; trail storage when Trail = false), P6 (path seek-ahead
+and path choice), P7 (mesh snap vs threshold; velocity flatten; MPD scaling). Interim: see code tags.
+
+**Next:** owner runs stigmergy/path/mesh-crawl in Rhino, and probes P5/P6/P7. Then M5 (Zombie engine)
+and M6 (Bundling).
 
 
 ## Ribbon and installer repair — final handover, 2026-10-31
