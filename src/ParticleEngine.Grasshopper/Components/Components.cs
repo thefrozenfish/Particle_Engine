@@ -15,12 +15,7 @@ namespace ParticleEngine.Grasshopper.Components
         public BundlingComponent() : base(ComponentCatalog.ByKey("Bundling")) { }
     }
 
-    // ----- 05 | Engine (M5-M6) -----
-    public sealed class CreeperZombieEngineComponent : ParticleComponentBase
-    {
-        public CreeperZombieEngineComponent() : base(ComponentCatalog.ByKey("CreeperZombieEngine")) { }
-    }
-
+    // ----- 05 | Engine (Creeper engines implemented; Bundling engines are M6) -----
     public sealed class BundlingEngineComponent : ParticleComponentBase
     {
         public BundlingEngineComponent() : base(ComponentCatalog.ByKey("BundlingEngine")) { }

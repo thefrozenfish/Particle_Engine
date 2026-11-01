@@ -103,6 +103,23 @@ namespace ParticleEngine.Tests
         }
 
         [Fact]
+        public void BehaviorRunIsDeterministic_ZombieEqualsRepeatedSteps()
+        {
+            // The Zombie engine runs N steps in one go; the Timer engine runs them one per solution.
+            // Both must give the same result — i.e. N steps are deterministic even with behaviours.
+            var pts = new double[] { 0, 0, 0, 5, 0, 0, 2, 3, 0, 1, 1, 0 };
+            var a = Sim(pts, Stack(new FlockingSpec(false, 180, 15, 1, 1.5, 1)));
+            var b = Sim(pts, Stack(new FlockingSpec(false, 180, 15, 1, 1.5, 1)));
+            for (int f = 0; f < 30; f++) a.Step();
+            for (int f = 0; f < 30; f++) b.Step();
+            for (int i = 0; i < a.Count; i++)
+            {
+                Assert.Equal(a.State.Px[i], b.State.Px[i], 1e-12);
+                Assert.Equal(a.State.Py[i], b.State.Py[i], 1e-12);
+            }
+        }
+
+        [Fact]
         public void MeshCrawl_StaysOnSurfaceWhileMovingTangentially()
         {
             var sim = Sim(new double[] { 0, 0, 0 },
