@@ -226,15 +226,34 @@ namespace ParticleEngine.Core.Settings
     /// <summary>The ordered behaviour/force stack produced by the Controller.</summary>
     public sealed class BehaviorData : IParticleSettings
     {
+        // Stored as a concrete array so Core can iterate it with a `for` loop and no enumerator
+        // allocation — the stack is walked once per agent per frame in the step loop (spec 9.4).
+        private readonly BehaviorSpec[] _stack;
+
         public BehaviorData(IReadOnlyList<BehaviorSpec> stack)
         {
-            Stack = stack ?? Array.Empty<BehaviorSpec>();
+            if (stack == null)
+            {
+                _stack = Array.Empty<BehaviorSpec>();
+            }
+            else if (stack is BehaviorSpec[] arr)
+            {
+                _stack = arr;
+            }
+            else
+            {
+                _stack = new BehaviorSpec[stack.Count];
+                for (int i = 0; i < stack.Count; i++) _stack[i] = stack[i];
+            }
         }
 
-        public IReadOnlyList<BehaviorSpec> Stack { get; }
+        public IReadOnlyList<BehaviorSpec> Stack => _stack;
+
+        /// <summary>The backing array, for allocation-free <c>for</c> iteration inside Core (spec 9.4).</summary>
+        internal BehaviorSpec[] Specs => _stack;
 
         public string SettingsTypeName => "Behavior Data";
-        public override string ToString() => $"Behavior Data ({Stack.Count} in stack)";
+        public override string ToString() => $"Behavior Data ({_stack.Length} in stack)";
     }
 
     public sealed class TrailDataSettings : IParticleSettings

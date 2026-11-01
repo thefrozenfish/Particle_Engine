@@ -39,6 +39,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\ParticleEngine16.png" LogicalName="ParticleEngine.Grasshopper.Resources.ParticleEngine16.png" />
     <EmbeddedResource Include="Resources\ParticleEngine24.png" LogicalName="ParticleEngine.Grasshopper.Resources.ParticleEngine24.png" />
+    <!-- Per-component icons (one per ComponentSpec.Key); logical name
+         ParticleEngine.Grasshopper.Resources.icons.<Key>.png. Regenerate with scripts/generate-icons.ps1. -->
+    <EmbeddedResource Include="Resources\icons\*.png" LogicalName="ParticleEngine.Grasshopper.Resources.icons.%(Filename).png" />
   </ItemGroup>
 
 </Project>

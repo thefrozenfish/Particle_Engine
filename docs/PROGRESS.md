@@ -6,7 +6,7 @@ Update this file at the end of every working session. It is the single source of
 
 **Ribbon repair follow-up (confirmed):** source and installed binaries updated; all 20 components registered in Windows Rhino 8/.NET 10.0.11. The missing tab was ribbon overflow, confirmed by off-screen bounds. Moving the existing tab after Rhino made it visible; owner confirmed "shows up now". Placement is session-only. See [RIBBON_FIX.md](RIBBON_FIX.md) for the Claude handover, verification and remaining limits.
 **Current version:** 0.4.0 in progress (fresh build; no 0.3.0 source reused)
-**Active milestone:** M6 implemented to interim rules (Bundling + Bundling_Engine + Bundling_ZombieEngine; Core + GH green). All 18 components now carry real behaviour. M2/M3 verified in Rhino; **M4, M5 and M6 not yet Rhino-tested** (a batch awaits the owner). Build sequence complete through M6; remaining: M7 (performance/zero-alloc pass + deferred probe validation) and M8 (icons, Yak packaging).
+**Active milestone:** M7/M8 in progress on an owner-approved split (2026-11-01): **harness + icons built now; benchmark numbers and the Yak publish held** until the Culebra probes lock the behaviour. Done so far: bench harness (spec 9.1 scenarios), a zero-allocation proof test (4 behaviours, passes net8 + net48), 18 per-component icons embedded, Yak manifest + staging script, install docs. All 18 components carry real behaviour. M2/M3 verified in Rhino; **M4, M5, M6 not yet Rhino-tested**, and the bench ran on **one Windows machine only**. Still outstanding before either milestone is done: deferred probe validation (P1–P9) + benchmarks on 3 machines, then the Yak publish.
 
 **Validation plan (owner, 2026-11-01):** Culebra probes (P1–P9) and benchmarks are **deferred to the end** — build the milestones to interim rules, marking `VERIFY(Pn)`, then validate and fix in one pass (before M7/M8). Milestones are not blocked on probes meanwhile. Remind the owner before finalizing.
 
@@ -23,8 +23,8 @@ Status: `todo` · `doing` · `done` · `blocked`. A milestone is `done` only whe
 | M4 | Stigmergy, Multi Path Tracking, Mesh Crawl (II variants + children dropped per owner) | doing | Win: Core+GH build + 71 Core tests green (stigmergy/path/mesh-crawl). Interim VERIFY P5/P6/P7. Rhino run + probes pending. | [M4 report](#m4--stigmergy-path-tracking-mesh-crawl-interim--2026-11-01) |
 | M5 | Creeper_ZombieEngine (run N iterations in one go) | doing | Win: Core+GH build + 72 Core tests green (Zombie == repeated steps). Synchronous; background-task refinement deferred. Rhino run pending. | [M5 report](#m5--creeper_zombieengine-synchronous--2026-11-01) |
 | M6 | Bundling, Bundling_Engine, Bundling_ZombieEngine | doing | Win: Core+GH build + 78 Core tests green (convergence, threshold cutoff, weld pins, determinism). Interim VERIFY P9. Rhino run + probe pending. | [M6 report](#m6--bundling--bundling-engines-interim--2026-11-01) |
-| M7 | Performance pass, zero-allocation proof, review checklist report | todo | | |
-| M8 | Icons, Yak packages (rh8-any, rh7-any), install docs, examples | todo | | |
+| M7 | Performance pass, zero-allocation proof, review checklist report | doing | Win: bench harness runs (1 machine, provisional); zero-alloc proof test green (net8 + net48, 4 behaviours). 3-machine numbers + post-probe re-run pending. | [M7 report](#m7--performance-pass--zero-allocation-proof-partial--2026-11-01) |
+| M8 | Icons, Yak packages (rh8-any, rh7-any), install docs, examples | doing | Win: 18 component icons embedded + wired; Yak manifest + staging script; install docs. Publish HELD; Rhino icon check + fresh-machine Yak install pending. | [M8 report](#m8--icons--packaging-partial-publish-held--2026-11-01) |
 
 ## 2. Owner tasks (things only the owner can do)
 
@@ -101,6 +101,8 @@ Benchmark results (median / p95 ms per step; bytes allocated per step):
 | 2026-10-31 | Pin RhinoCommon/Grasshopper to 7.38 (net48) and 8.36 (net7.0) for reproducible CI. | Claude |
 | 2026-10-31 | Owner runs Culebra on **Rhino 8**; port dump will be done there, not Rhino 7. Rhino 8 is already the primary target; Rhino 7 stays best-effort via the net48 build (no code dropped). | Owner |
 | 2026-11-01 | Dropped **Mesh Crawl II** and **Multi Path Tracking II** (and child spawning). Scope now **18 components**. Reverses interpretation calls I-1/I-2; probe P10 dropped. | Owner |
+| 2026-11-01 | Do M7/M8 now on a split: **build harness + icons; hold benchmark numbers and the Yak publish** until the probes lock behaviour. Avoids re-running benchmarks / re-releasing after probe-driven changes. | Owner |
+| 2026-11-01 | Yak package ships a **single netstandard2.0 assembly** (loads on both Rhino 8 runtimes + Rhino 7), not the spec's net48/+net7.0/ split (BUILD_SPEC §2.4). One file set; distribution tags set at push time. | Claude |
 
 ## 7. Milestone reports
 
@@ -426,6 +428,104 @@ Ratio is an absolute cap (`move = min(Ratio, gap)`); Weld pins the first/last We
 **Next:** owner runs bundling in Rhino (Bundling → Bundling_Engine with a Timer, and Bundling_ZombieEngine
 with Run), and probe P9 against Culebra. Then the deferred validation pass (all probes + benchmarks)
 before M7/M8.
+
+### M7 — performance pass + zero-allocation proof (partial) — 2026-11-01
+
+**Scope / basis.** Owner approved doing M7/M8 now on a split: **build the harness and prove zero
+allocation now; hold the final benchmark numbers** until the probes lock the behaviour (the probes change
+the maths in the step loop, not whether it allocates). So this report covers the harness, the
+allocation proof, the §9.4 checklist re-run, and a real fix — but the recorded numbers are provisional
+and single-machine.
+
+**Fix made (the main finding).** The step loop walked the behaviour stack with
+`foreach (BehaviorSpec spec in Behaviors.Stack)` where `Stack` is `IReadOnlyList<BehaviorSpec>`. Through
+the interface that boxes an enumerator on the heap **once per agent per frame** — 10 000 allocations/
+frame in the forces scenario (spec 9.4 "foreach over IEnumerable"). Fixed: `BehaviorData` now stores a
+concrete `BehaviorSpec[]` and exposes it internally as `Specs`; the three per-frame loops
+(`AccumulateSteering`, `PrepareBehaviors`, `UpdateBehaviorFlags`) iterate it with an indexed `for`.
+`Stack` (the public `IReadOnlyList`) is unchanged for the GH layer.
+
+**Files created/changed:**
+- Core: `Settings.cs` — `BehaviorData` backed by an array + internal `Specs`. `CreeperSimulation.cs` —
+  three `foreach`→`for` loops.
+- Bench: `bench/ParticleEngine.Bench/Scenarios.cs` (the four spec-9.1 scenarios, built deterministically
+  with the Core PRNG) + `Program.cs` (median/p95 step time via `Stopwatch`, allocation/step via
+  `GC.GetAllocatedBytesForCurrentThread`).
+- Tests: `ZeroAllocationTests.cs` — Flocking / Attraction+Repulsion / Stigmergy / Path tracking each
+  assert ≤ 1 KB allocated per step after warm-up (bounce boundary keeps the cloud bounded so the grid
+  is stable). **Passes on net8 and net48.**
+
+**Tests run:** Windows 11 / net8.0 / **82 core + 5 conformance / pass**; net48 / 82 core / pass.
+**Builds:** solution **0 warnings, 0 errors**. 18 components.
+
+**Provisional benchmark numbers** (Windows 11, .NET 8.0.15, x64, **one machine** — NOT the three-machine
+acceptance, and interim behaviour). `alloc B/step` is steady-state with a **do-nothing** boundary:
+
+| Scenario | Target | median ms | p95 ms | alloc B/step |
+| --- | --- | --- | --- | --- |
+| 5 000 agents, Flocking, 3D | ≤ 10 ms | 3.0 | 3.5 | 461 093 |
+| 1 000 agents, Stigmergy, trail 100, step 6 | ≤ 15 ms | 2.1 | 2.7 | 1 375 306 |
+| 10 000 agents, Attraction + Repulsion (20 targets) | ≤ 5 ms | 0.5 | 2.9 | 0 |
+| 2 000 agents, Multi Path Tracking, 20 paths × 200 seg | ≤ 8 ms | 20.6 | 22.5 | **0** but **over time target** |
+
+**Two real findings from the bench (behaviour-independent; for the validation pass, not fixed now):**
+1. **Path tracking is over its 8 ms target (~20 ms).** It is a brute-force nearest-point search over all
+   segments (20 × 200 = 4 000) for every agent. It allocates nothing, but needs spatial acceleration
+   (index the path segments, or cap the search) to hit the target. Deferred because P6 may change the
+   path-choice/seek semantics first.
+2. **The do-nothing boundary reallocates the grid every frame.** With an unbounded cloud the live
+   bounding box grows without limit, so the grid cell count keeps growing and `cellStart`/`cursor`
+   realloc each frame (the 461 KB / 1.4 MB above). **Bounded boundaries (bounce/respawn) are zero-alloc**
+   — that is what the proof test asserts. Options for the perf pass: clamp the grid extent, or pool the
+   cell arrays. The step loop itself is allocation-free regardless.
+
+**Review checklist (spec 9.4) — full re-run:** no LINQ/lambdas in Core; the behaviour stack is now an
+array walked with `for` (the fix above); grid + trail grid are counting-sort into flat arrays that only
+grow; ring-buffer trails (no `RemoveAt(0)`); squared-distance compares, `cos` precomputed per particle,
+no `Acos`/`Atan2`; own PRNG; `Message` strings built once per solve, not per frame; engine state is
+instance-level. Outstanding: path-tracking acceleration and the do-nothing grid growth (above).
+
+**New / changed [VERIFY]:** none. **Hosts exercised:** Windows 11 only (compiles, tests, bench). Mac +
+the other two machines pending (CI / owner). The time targets and the final allocation table are
+**not** accepted yet — they are re-run after the probes.
+
+**Next:** after the probes lock behaviour, re-run the bench on Windows + macOS Intel + macOS Apple
+Silicon, decide on the path-tracking acceleration and the do-nothing grid handling, and record the
+accepted numbers here.
+
+### M8 — icons + packaging (partial; publish held) — 2026-11-01
+
+**Scope / basis.** Same split: **icons and the package are prepared now; the Yak publish is held** until
+the behaviour is validated. No release is made.
+
+**Files created/changed:**
+- Icons: `scripts/generate-icons.ps1` (clean-room generator — our own monogram tiles, subcategory
+  colours, nothing from Culebra) + 18 PNGs in `src/ParticleEngine.Grasshopper/Resources/icons/`.
+- Wiring: `ParticleEngine.Grasshopper.csproj` embeds `Resources\icons\*.png` with logical name
+  `...Resources.icons.<Key>.png`; `ParticleEngineBranding.ComponentIconFor(key)` loads per-key with a
+  cached fallback to the shared icon; `ParticleComponentBase.Icon` now returns the per-component icon.
+  Verified from the built `.gha`: 18 icon resources embedded, names match the 18 catalog keys.
+- Packaging: `packaging/manifest.yml` (Yak manifest, 0.4.0) + `scripts/build-yak.ps1` (stages exactly
+  `ParticleEngine.gha` + `ParticleEngine.Core.dll` + manifest + icon into `dist/`, **never pushes**,
+  prints the push command). `docs/INSTALL.md` (manual + Yak install + per-milestone wiring recipes).
+
+**Packaging deviation (logged in decisions):** the spec's net48/ + net7.0/ multi-target Yak layout does
+not apply — the plugin is a **single netstandard2.0 assembly** that Rhino 8 loads on both runtimes (and
+Rhino 7 loads too), so one set of files serves every target. Distribution tags are set at push time.
+
+**Builds/tests:** solution **0 warnings, 0 errors**; 82 core + 5 conformance green; staging script
+produces the correct 4-file package.
+
+**Hosts exercised:** Windows 11 — compiles, icon resources confirmed embedded in the `.gha`. **Rhino —
+NOT run:** the icons have not been seen rendering in the Grasshopper ribbon/canvas, and no fresh-machine
+Yak install has been done (publish held). **Examples:** binary `.gh` files need a Rhino session to
+author; wiring recipes are in `INSTALL.md` as the interim, and `examples/` will be added later.
+
+**New / changed [VERIFY]:** none.
+
+**Next:** owner confirms the per-component icons render in Rhino; then, after behaviour validation,
+publish the Yak package (`scripts/build-yak.ps1`, then `yak push` by hand) and do a fresh-machine install
+on Windows and Mac to complete the host-acceptance table.
 
 
 ## Ribbon and installer repair — final handover, 2026-10-31

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using ParticleEngine.Core;
 
@@ -14,8 +15,52 @@ namespace ParticleEngine.Bench
                 return 0;
             }
 
-            Console.WriteLine("ParticleEngine.Bench stub. No scenarios yet (added from M2 on).");
-            Console.WriteLine("Run with --emit-goldens to print the PRNG golden block for the tests.");
+            int timed = 120;   // measured steps for timing percentiles
+            int allocSteps = 60; // measured steps for allocation-per-step
+
+            Console.WriteLine("ParticleEngine.Bench — spec 9.1 scenarios");
+            Console.WriteLine("Runtime: " + System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
+                              + " / " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture);
+            Console.WriteLine();
+            Console.WriteLine("| Scenario | Target | median ms | p95 ms | alloc B/step |");
+            Console.WriteLine("| --- | --- | --- | --- | --- |");
+
+            foreach (Scenario sc in Scenarios.All())
+            {
+                CreeperSimulation sim = sc.Build();
+                for (int i = 0; i < sc.Warm; i++) sim.Step();
+
+                // Timing: one Step per sample, into a preallocated buffer (no harness allocation here).
+                var ms = new double[timed];
+                var sw = new Stopwatch();
+                for (int i = 0; i < timed; i++)
+                {
+                    sw.Restart();
+                    sim.Step();
+                    sw.Stop();
+                    ms[i] = sw.Elapsed.TotalMilliseconds;
+                }
+                Array.Sort(ms);
+                double median = ms[timed / 2];
+                double p95 = ms[(int)(timed * 0.95)];
+
+                // Allocation per step: measured in a clean pass with nothing but Step() between reads.
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                for (int i = 0; i < allocSteps; i++) sim.Step();
+                long after = GC.GetAllocatedBytesForCurrentThread();
+                long perStep = (after - before) / allocSteps;
+
+                Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                    "| {0} | {1} | {2:0.000} | {3:0.000} | {4} |",
+                    sc.Name, sc.Target, median, p95, perStep));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Acceptance (spec 9.5): steady-state Core allocation per step is zero (+/- 1 KB).");
+            Console.WriteLine("Numbers are PROVISIONAL until the Culebra probes lock the behaviour (per owner).");
             return 0;
         }
 
@@ -37,7 +82,6 @@ namespace ParticleEngine.Bench
             }
             Console.WriteLine();
 
-            // XOR checksum of the first 1000 outputs (continuing the same stream).
             uint checksum = 0;
             for (int i = 0; i < 1000; i++) checksum ^= rng.NextUInt();
             Console.WriteLine($"xor_after_1000={checksum}");

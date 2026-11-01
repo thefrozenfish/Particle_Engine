@@ -1,0 +1,19 @@
+---
+name: ParticleEngine
+version: 0.4.0
+authors:
+  - Abhinav Chaudhary
+description: >
+  Agent and particle simulation for Grasshopper: Reynolds flocking, stigmergy
+  (trail chasing), multi-path tracking, mesh crawling, attraction/repulsion
+  forces and curve-network bundling. A native, clean-room reimplementation of a
+  Culebra-style toolset for Rhino 8 (Windows and macOS).
+url: https://github.com/thefrozenfish/Particle_Engine
+keywords:
+  - particle
+  - agent
+  - flocking
+  - stigmergy
+  - simulation
+  - grasshopper
+icon: ParticleEngine24.png

@@ -170,8 +170,10 @@ namespace ParticleEngine.Core
             if (Behaviors == null) return;
 
             double maxSearch = 0, maxTrailRange = 0;
-            foreach (BehaviorSpec spec in Behaviors.Stack)
+            BehaviorSpec[] specs = Behaviors.Specs;
+            for (int si = 0; si < specs.Length; si++)
             {
+                BehaviorSpec spec = specs[si];
                 if (spec is FlockingSpec f)
                 {
                     _needGrid = true;
@@ -197,12 +199,16 @@ namespace ParticleEngine.Core
             _hasStigmergy = _hasPath = _hasMeshCrawl = false;
             _meshSpec = null;
             if (Behaviors != null)
-                foreach (BehaviorSpec spec in Behaviors.Stack)
+            {
+                BehaviorSpec[] specs = Behaviors.Specs;
+                for (int si = 0; si < specs.Length; si++)
                 {
+                    BehaviorSpec spec = specs[si];
                     if (spec is StigmergySpec) _hasStigmergy = true;
                     else if (spec is PathTrackingSpec) _hasPath = true;
                     else if (spec is MeshCrawlSpec m) { _hasMeshCrawl = true; if (_meshSpec == null) _meshSpec = m; }
                 }
+            }
             _trailsActive = _storeTrails || _hasStigmergy;
         }
 
@@ -247,8 +253,10 @@ namespace ParticleEngine.Core
             ref double ax, ref double ay, ref double az)
         {
             if (Behaviors == null) return;
-            foreach (BehaviorSpec spec in Behaviors.Stack)
+            BehaviorSpec[] specs = Behaviors.Specs;
+            for (int si = 0; si < specs.Length; si++)
             {
+                BehaviorSpec spec = specs[si];
                 if (spec is FlockingSpec flock) AddFlocking(i, flock, maxSpeed, maxForce, ref ax, ref ay, ref az);
                 else if (spec is ForceSpec force) AddForce(i, force, ref ax, ref ay, ref az);
                 else if (spec is StigmergySpec stig) AddStigmergy(i, stig, maxSpeed, maxForce, ref ax, ref ay, ref az);
