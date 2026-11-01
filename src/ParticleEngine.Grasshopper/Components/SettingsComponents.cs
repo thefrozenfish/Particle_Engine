@@ -13,7 +13,8 @@ namespace ParticleEngine.Grasshopper.Components
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            SpawnSettings? spawn = GhInput.GetSettings<SpawnSettings>(DA, 0);
+            // Spawn Settings is a list-access input in Culebra; read it as a list and use the first.
+            SpawnSettings? spawn = GhInput.GetSettingsFromList<SpawnSettings>(DA, 0);
             if (spawn == null)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Spawn Settings is required (connect Box or Point Spawn).");

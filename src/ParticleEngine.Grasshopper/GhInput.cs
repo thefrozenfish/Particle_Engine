@@ -51,11 +51,31 @@ namespace ParticleEngine.Grasshopper
             return false;
         }
 
-        /// <summary>Unwrap one of our settings objects from a generic input (ParticleGoo or wrapper).</summary>
+        /// <summary>Unwrap one of our settings objects from an ITEM-access generic input.</summary>
         internal static T? GetSettings<T>(IGH_DataAccess da, int index) where T : class, IParticleSettings
         {
             IGH_Goo? goo = null;
             if (!da.GetData(index, ref goo) || goo == null) return null;
+            return Unwrap<T>(goo);
+        }
+
+        /// <summary>Unwrap the first settings object from a LIST-access generic input (e.g. Init Settings'
+        /// Spawn Settings, which Culebra declares as list access).</summary>
+        internal static T? GetSettingsFromList<T>(IGH_DataAccess da, int index) where T : class, IParticleSettings
+        {
+            var goos = new List<IGH_Goo>();
+            if (!da.GetDataList(index, goos)) return null;
+            foreach (IGH_Goo goo in goos)
+            {
+                if (goo == null) continue;
+                T? value = Unwrap<T>(goo);
+                if (value != null) return value;
+            }
+            return null;
+        }
+
+        private static T? Unwrap<T>(IGH_Goo goo) where T : class, IParticleSettings
+        {
             if (goo is ParticleGoo<T> pg) return pg.Value;
             if (goo is GH_ObjectWrapper w && w.Value is T wrapped) return wrapped;
             return goo.ScriptVariable() as T;
